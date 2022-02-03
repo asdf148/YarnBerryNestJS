@@ -8,14 +8,14 @@ export class Item {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   image: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   title: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   content: string;
 }
 
-export const AuthSchema = SchemaFactory.createForClass(Item);
+export const ItemSchema = SchemaFactory.createForClass(Item);

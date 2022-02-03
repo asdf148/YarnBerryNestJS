@@ -9,16 +9,16 @@ export class Auth {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   image: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   name: string;
 
-  @Prop()
+  @Prop({ type: String, unique: true, required: true })
   email: string;
 
-  @Prop()
+  @Prop({ type: String, required: true })
   password: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Item' })
