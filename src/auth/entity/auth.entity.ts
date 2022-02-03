@@ -9,7 +9,7 @@ export class Auth {
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   image: string;
 
   @Prop({ type: String, required: true })
