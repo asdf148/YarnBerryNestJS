@@ -6,6 +6,22 @@ export type AuthDocument = Auth & mongoose.Document;
 
 @Schema()
 export class Auth {
+  constructor(
+    id?: string,
+    image?: string,
+    name?: string,
+    email?: string,
+    password?: string,
+    items?: Item[],
+  ) {
+    this.id = id;
+    this.image = image;
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.items = items;
+  }
+
   @Prop({ type: mongoose.Schema.Types.ObjectId })
   id: string;
 
@@ -22,7 +38,7 @@ export class Auth {
   password: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Item' })
-  item: Item[];
+  items: Item[];
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

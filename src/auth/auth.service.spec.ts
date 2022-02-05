@@ -1,5 +1,9 @@
+import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { hash } from 'bcrypt';
 import { AuthService } from './auth.service';
+import { CreateAuthDTO } from './dto/createAuth.dto';
+import { Auth } from './entity/auth.entity';
 import { AuthRepository } from './entity/auth.repository';
 
 describe('AuthService', () => {
@@ -8,8 +12,11 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
-    }).compile();
+      providers: [AuthService, AuthRepository],
+    })
+      .overrideProvider(getModelToken('Auth'))
+      .useValue(repository)
+      .compile();
 
     service = module.get<AuthService>(AuthService);
     repository = module.get<AuthRepository>(AuthRepository);
@@ -19,13 +26,31 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  it('회원가입', () => {
-    const auth = {
-      name: 'test',
-      email: 'asdf@asdf.com',
-      password: 'asdfqw12',
-    };
-    const result = service.signUp(auth);
-    expect(result).toBe(true);
-  })
+  it('회원가입', async () => {
+    const createAuth: CreateAuthDTO = new CreateAuthDTO(
+      null,
+      'test',
+      'asdf@asdf.com',
+      'asdfqw12',
+    );
+
+    const savedAuth: Auth = new Auth(
+      null,
+      null,
+      'test',
+      'asdf@asdf.com',
+      await hash(createAuth.password, 10),
+      [],
+    );
+
+    jest
+      .spyOn(repository, 'save')
+      .mockImplementation(() => Promise.resolve(savedAuth));
+
+    const result = await service.signUp(createAuth);
+    expect(result).toBeInstanceOf(Auth);
+    expect(result.email).toBe(savedAuth.email);
+    expect(result.name).toBe(savedAuth.name);
+    expect(await hash(result.password, 10)).toBe(savedAuth.password);
+  });
 });
