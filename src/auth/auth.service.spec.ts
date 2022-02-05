@@ -12,11 +12,16 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, AuthRepository],
-    })
-      .overrideProvider(getModelToken('Auth'))
-      .useValue(repository)
-      .compile();
+      providers: [
+        AuthService,
+        AuthRepository,
+        {
+          provide: getModelToken(Auth.name),
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          useFactory: () => {},
+        },
+      ],
+    }).compile();
 
     service = module.get<AuthService>(AuthService);
     repository = module.get<AuthRepository>(AuthRepository);
@@ -29,7 +34,7 @@ describe('AuthService', () => {
   it('회원가입', async () => {
     const createAuth: CreateAuthDTO = new CreateAuthDTO(
       null,
-      'test',
+      'asdf',
       'asdf@asdf.com',
       'asdfqw12',
     );
@@ -51,6 +56,5 @@ describe('AuthService', () => {
     expect(result).toBeInstanceOf(Auth);
     expect(result.email).toBe(savedAuth.email);
     expect(result.name).toBe(savedAuth.name);
-    expect(await hash(result.password, 10)).toBe(savedAuth.password);
   });
 });
