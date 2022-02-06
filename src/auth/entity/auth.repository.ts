@@ -17,6 +17,11 @@ export class AuthRepository {
     return await this.authModel.findById(id).exec();
   }
 
+  // 이메일로 조회
+  async findByEmail(email: string): Promise<Auth> {
+    return await this.authModel.findOne({ email }).exec();
+  }
+
   // 저장하기
   async save(auth: Auth): Promise<Auth> {
     const createdCat = new this.authModel(auth);
