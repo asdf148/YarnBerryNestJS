@@ -1,38 +1,52 @@
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { compare, hash } from 'bcrypt';
-import { SuccessResponseDTO } from 'src/dto/successResponse.dto';
 import { AuthService } from './auth.service';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { LoginDTO } from './dto/login.dto';
 import { Auth } from './entity/auth.entity';
 import { AuthRepository } from './entity/auth.repository';
 
-describe('AuthService', async () => {
+describe('AuthService', () => {
   let service: AuthService;
   let repository: AuthRepository;
+  let createAuth: CreateAuthDTO;
+  let savedAuth: Auth;
 
-  const createAuth: CreateAuthDTO = new CreateAuthDTO(
-    null,
-    'asdf',
-    'asdf@asdf.com',
-    'asdfqw12',
-  );
+  beforeAll(async () => {
+    const initCreateAuth: CreateAuthDTO = new CreateAuthDTO(
+      null,
+      'asdf',
+      'asdf@asdf.com',
+      'asdfqw12',
+    );
 
-  const savedAuth: Auth = new Auth(
-    null,
-    null,
-    'asdf',
-    'asdf@asdf.com',
-    await hash(createAuth.password, 10),
-    [],
-  );
+    const initSavedAuth: Auth = new Auth(
+      null,
+      null,
+      'asdf',
+      'asdf@asdf.com',
+      await hash(initCreateAuth.password, 10),
+      [],
+    );
+
+    createAuth = initCreateAuth;
+    savedAuth = initSavedAuth;
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        JwtModule.register({
+          secret: process.env.JWT_SECRET_KEY,
+          signOptions: { issuer: 'MyServer' },
+        }),
+      ],
       providers: [
         AuthService,
         AuthRepository,
+        JwtService,
         {
           provide: getModelToken(Auth.name),
           // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -62,7 +76,7 @@ describe('AuthService', async () => {
     expect(await compare(createAuth.password, result.password)).toBe(true);
   });
 
-  it('로그인', async () => {
+  it('로그인 성공', async () => {
     const loginDTO: LoginDTO = new LoginDTO('asdf@asdf.com', 'asdfqw12');
 
     jest
@@ -71,7 +85,30 @@ describe('AuthService', async () => {
 
     const result = await service.login(loginDTO);
 
-    expect(result).toBeInstanceOf(SuccessResponseDTO);
-    expect(result.data).toBeInstanceOf(String);
+    expect(result).toBeInstanceOf(String);
+  });
+
+  it('로그인 실패 (비밀번호 불일치)', async () => {
+    const loginDTO: LoginDTO = new LoginDTO('asdf@asdf.com', 'qweras12');
+
+    jest
+      .spyOn(repository, 'findByEmail')
+      .mockImplementation(() => Promise.resolve(savedAuth));
+
+    const result = await service.login(loginDTO);
+
+    expect(result).rejects.toThrow('로그인 실패');
+  });
+
+  it('로그인 실패 (존재하지 않는 이메일)', async () => {
+    const loginDTO: LoginDTO = new LoginDTO('qwer@qwer.com', 'asdfqw12');
+
+    jest
+      .spyOn(repository, 'findByEmail')
+      .mockImplementation(() => Promise.resolve(null));
+
+    const result = await service.login(loginDTO);
+
+    expect(result).rejects.toThrow('로그인 실패');
   });
 });
