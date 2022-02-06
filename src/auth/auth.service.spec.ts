@@ -1,6 +1,6 @@
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { hash } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { AuthService } from './auth.service';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { Auth } from './entity/auth.entity';
@@ -42,7 +42,7 @@ describe('AuthService', () => {
     const savedAuth: Auth = new Auth(
       null,
       null,
-      'test',
+      'asdf',
       'asdf@asdf.com',
       await hash(createAuth.password, 10),
       [],
@@ -54,7 +54,8 @@ describe('AuthService', () => {
 
     const result = await service.signUp(createAuth);
     expect(result).toBeInstanceOf(Auth);
-    expect(result.email).toBe(savedAuth.email);
-    expect(result.name).toBe(savedAuth.name);
+    expect(result.email).toBe(createAuth.email);
+    expect(result.name).toBe(createAuth.name);
+    expect(await compare(createAuth.password, result.password)).toBe(true);
   });
 });
