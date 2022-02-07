@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
-import { CustomError } from '../dto/error/customError';
+import { SignUpFailError } from '../dto/error/signUpFailError';
 import { LoginFailError } from '../dto/error/loginFailError';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { LoginDTO } from './dto/login.dto';
@@ -18,16 +18,45 @@ export class AuthService {
 
   // 회원가입
   async signUp(createAuth: CreateAuthDTO): Promise<Auth> {
-    const savedAuth: Auth = new Auth(
-      null,
-      null,
-      createAuth.name,
-      createAuth.email,
-      await hash(createAuth.password, 10),
-      [],
-    );
+    try {
+      this.isNameNull(createAuth.name);
+      this.isEmailNull(createAuth.email);
+      this.isPasswordNull(createAuth.password);
 
-    return await this.authRepository.save(savedAuth);
+      const savedAuth: Auth = new Auth(
+        null,
+        null,
+        createAuth.name,
+        createAuth.email,
+        await hash(createAuth.password, 10),
+        [],
+      );
+
+      return await this.authRepository.save(savedAuth);
+    } catch (e) {
+      throw new SignUpFailError(e);
+    }
+  }
+
+  isNameNull(name: string): void {
+    if (name === null) {
+      throw 'name';
+    }
+    return;
+  }
+
+  isEmailNull(email: string): void {
+    if (email === null) {
+      throw 'email';
+    }
+    return;
+  }
+
+  isPasswordNull(password: string): void {
+    if (password === null) {
+      throw 'password';
+    }
+    return;
   }
 
   // 로그인
