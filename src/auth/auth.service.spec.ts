@@ -11,6 +11,7 @@ import { AuthRepository } from './entity/auth.repository';
 describe('AuthService', () => {
   let service: AuthService;
   let repository: AuthRepository;
+  let jwtService: JwtService;
   let createAuth: CreateAuthDTO;
   let savedAuth: Auth;
 
@@ -46,7 +47,6 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         AuthRepository,
-        JwtService,
         {
           provide: getModelToken(Auth.name),
           // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -57,6 +57,7 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     repository = module.get<AuthRepository>(AuthRepository);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {
@@ -83,9 +84,11 @@ describe('AuthService', () => {
       .spyOn(repository, 'findByEmail')
       .mockImplementation(() => Promise.resolve(savedAuth));
 
+    jest.spyOn(jwtService, 'sign').mockImplementation(() => 'token');
+
     const result = await service.login(loginDTO);
 
-    expect(result).toBeInstanceOf(String);
+    expect(result).toBe('token');
   });
 
   it('로그인 실패 (비밀번호 불일치)', async () => {
@@ -97,7 +100,7 @@ describe('AuthService', () => {
 
     const result = await service.login(loginDTO);
 
-    expect(result).rejects.toThrow('로그인 실패');
+    expect(result).toThrowError('로그인 실패');
   });
 
   it('로그인 실패 (존재하지 않는 이메일)', async () => {
