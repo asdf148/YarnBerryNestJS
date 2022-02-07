@@ -16,23 +16,15 @@ describe('AuthService', () => {
   let savedAuth: Auth;
 
   beforeAll(async () => {
-    const initCreateAuth: CreateAuthDTO = new CreateAuthDTO(
-      null,
-      'asdf',
-      'asdf@asdf.com',
-      'asdfqw12',
-    );
-
     const initSavedAuth: Auth = new Auth(
       null,
       null,
       'asdf',
       'asdf@asdf.com',
-      await hash(initCreateAuth.password, 10),
+      await hash('asdfqw12', 10),
       [],
     );
 
-    createAuth = initCreateAuth;
     savedAuth = initSavedAuth;
   });
 
@@ -55,6 +47,14 @@ describe('AuthService', () => {
       ],
     }).compile();
 
+    const initCreateAuth: CreateAuthDTO = new CreateAuthDTO(
+      null,
+      'asdf',
+      'asdf@asdf.com',
+      'asdfqw12',
+    );
+
+    createAuth = initCreateAuth;
     service = module.get<AuthService>(AuthService);
     repository = module.get<AuthRepository>(AuthRepository);
     jwtService = module.get<JwtService>(JwtService);
@@ -64,7 +64,7 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  it('회원가입', async () => {
+  it('회원가입 성공', async () => {
     jest
       .spyOn(repository, 'save')
       .mockImplementation(() => Promise.resolve(savedAuth));
@@ -75,6 +75,42 @@ describe('AuthService', () => {
     expect(result.email).toBe(createAuth.email);
     expect(result.name).toBe(createAuth.name);
     expect(await compare(createAuth.password, result.password)).toBe(true);
+  });
+
+  it('회원가입 실패 (이름 미입력)', async () => {
+    createAuth.name = null;
+
+    jest
+      .spyOn(repository, 'save')
+      .mockImplementation(() => Promise.resolve(savedAuth));
+
+    const result = await service.signUp(createAuth);
+
+    expect(result).toThrowError('SignUpFailed name is invalid');
+  });
+
+  it('회원가입 실패 (이메일 미입력)', async () => {
+    createAuth.email = null;
+
+    jest
+      .spyOn(repository, 'save')
+      .mockImplementation(() => Promise.resolve(savedAuth));
+
+    const result = await service.signUp(createAuth);
+
+    expect(result).toThrowError('SignUpFailed email is invalid');
+  });
+
+  it('회원가입 실패 (비밀번호 미입력)', async () => {
+    createAuth.password = null;
+
+    jest
+      .spyOn(repository, 'save')
+      .mockImplementation(() => Promise.resolve(savedAuth));
+
+    const result = await service.signUp(createAuth);
+
+    expect(result).toThrowError('SignUpFailed password is invalid');
   });
 
   it('로그인 성공', async () => {
