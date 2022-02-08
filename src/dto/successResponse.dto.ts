@@ -1,7 +1,5 @@
 export class SuccessResponseDTO<T> {
-  constructor(
-    public status: string = 'Success',
-    public message: string,
-    public data: T,
-  ) {}
+  public status = 'Success';
+
+  constructor(public message?: string, public data?: T) {}
 }
