@@ -1,8 +1,11 @@
+import { HttpStatus } from '@nestjs/common';
+import { response } from 'express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { hash } from 'bcrypt';
-import { SuccessResponseDTO } from 'src/dto/successResponse.dto';
+import { SuccessResponseDTO } from '../dto/successResponse.dto';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { CreateAuthDTO } from './dto/createAuth.dto';
 import { Auth } from './entity/auth.entity';
 
 describe('AuthController', () => {
@@ -23,6 +26,13 @@ describe('AuthController', () => {
   });
 
   it('회원가입 성공', async () => {
+    const CreateAuth: CreateAuthDTO = new CreateAuthDTO(
+      null,
+      'asdf',
+      'asdf@asdf.com',
+      'asdfqw12',
+    );
+
     const foundAuth: Auth = new Auth(
       null,
       null,
@@ -41,8 +51,8 @@ describe('AuthController', () => {
       .spyOn(service, 'signUp')
       .mockImplementation(() => Promise.resolve(foundAuth));
 
-    expect(await controller.signUp(signUpSuccessResponse)).toBe(
-      signUpSuccessResponse,
+    expect(await controller.signUp(CreateAuth, response)).toBe(
+      response.status(HttpStatus.CREATED).json(signUpSuccessResponse),
     );
   });
 });
