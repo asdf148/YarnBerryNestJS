@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { Auth } from './entity/auth.entity';
+import { LoginDTO } from './dto/login.dto';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -57,6 +58,8 @@ describe('AuthController', () => {
   });
 
   it('로그인 성공', async () => {
+    const loginAuth: LoginDTO = new LoginDTO('asdf@asdf.com', 'asdfqw12');
+
     const loginSuccessResponse = new SuccessResponseDTO<string>(
       'Login Success',
       'token',
@@ -66,7 +69,7 @@ describe('AuthController', () => {
       .spyOn(service, 'login')
       .mockImplementation(() => Promise.resolve('token'));
 
-    expect(await controller.login(response)).toBe(
+    expect(await controller.login(loginAuth, response)).toBe(
       response.status(HttpStatus.OK).json(loginSuccessResponse),
     );
   });
