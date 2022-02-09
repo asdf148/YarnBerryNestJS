@@ -18,6 +18,8 @@ export class AuthService {
 
   // 회원가입
   async signUp(createAuth: CreateAuthDTO): Promise<Auth> {
+    this.createAuthValidation(createAuth);
+
     const savedAuth: Auth = new Auth(
       null,
       null,
@@ -30,7 +32,7 @@ export class AuthService {
     return await this.authRepository.save(savedAuth);
   }
 
-  createAuthValidation(createAuth: Auth): void {
+  createAuthValidation(createAuth: CreateAuthDTO): void {
     try {
       this.isNameNull(createAuth.name);
       this.isEmailNull(createAuth.email);
