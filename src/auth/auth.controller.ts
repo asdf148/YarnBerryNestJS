@@ -14,11 +14,18 @@ export class AuthController {
     @Body() createAuth: CreateAuthDTO,
     @Res() res: Response,
   ): Promise<Response<any, Record<string, any>>> {
-    const savedAuth: Auth = await this.authService.signUp(createAuth);
-    const signUpSuccessResponse: SuccessResponseDTO<string> =
-      new SuccessResponseDTO<string>('SignUp Success', savedAuth.email);
+    try {
+      const savedAuth: Auth = await this.authService.signUp(createAuth);
+      const signUpSuccessResponse: SuccessResponseDTO<string> =
+        new SuccessResponseDTO<string>('SignUp Success', savedAuth.email);
 
-    return res.status(HttpStatus.CREATED).json(signUpSuccessResponse);
+      return res.status(HttpStatus.CREATED).json(signUpSuccessResponse);
+    } catch (e) {
+      const signUpFailResponse: SuccessResponseDTO<string> =
+        new SuccessResponseDTO<string>('SignUp Fail', e.message);
+
+      return res.status(HttpStatus.BAD_REQUEST).json(signUpFailResponse);
+    }
   }
 
   async login(
