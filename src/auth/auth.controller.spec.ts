@@ -55,4 +55,19 @@ describe('AuthController', () => {
       response.status(HttpStatus.CREATED).json(signUpSuccessResponse),
     );
   });
+
+  it('로그인 성공', async () => {
+    const loginSuccessResponse = new SuccessResponseDTO<string>(
+      'Login Success',
+      'token',
+    );
+
+    jest
+      .spyOn(service, 'login')
+      .mockImplementation(() => Promise.resolve('token'));
+
+    expect(await controller.login(response)).toBe(
+      response.status(HttpStatus.OK).json(loginSuccessResponse),
+    );
+  });
 });
