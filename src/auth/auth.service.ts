@@ -18,24 +18,28 @@ export class AuthService {
 
   // 회원가입
   async signUp(createAuth: CreateAuthDTO): Promise<Auth> {
+    const savedAuth: Auth = new Auth(
+      null,
+      null,
+      createAuth.name,
+      createAuth.email,
+      await hash(createAuth.password, 10),
+      [],
+    );
+
+    return await this.authRepository.save(savedAuth);
+  }
+
+  createAuthValidation(createAuth: Auth): void {
     try {
       this.isNameNull(createAuth.name);
       this.isEmailNull(createAuth.email);
       this.isPasswordNull(createAuth.password);
-
-      const savedAuth: Auth = new Auth(
-        null,
-        null,
-        createAuth.name,
-        createAuth.email,
-        await hash(createAuth.password, 10),
-        [],
-      );
-
-      return await this.authRepository.save(savedAuth);
     } catch (e) {
       throw new SignUpFailError(e);
     }
+
+    return;
   }
 
   isNameNull(name: string): void {
