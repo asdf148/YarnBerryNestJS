@@ -1,14 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ResponseDTO } from './response.dto';
 
-export class FailResponseDTO {
+export class FailResponseDTO extends ResponseDTO {
   constructor(status?: string, message?: string) {
+    super();
     this.status = status ?? 'Fail';
     this.message = message ?? 'No Message';
   }
-
-  @ApiProperty({ description: '응답 상태' })
-  public status: string;
-
-  @ApiProperty({ description: '응답 메시지' })
-  public message: string;
 }
