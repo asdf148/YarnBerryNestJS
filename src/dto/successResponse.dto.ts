@@ -9,6 +9,6 @@ export class SuccessResponseDTO<T> extends ResponseDTO {
     this.data = data ?? 'No Data';
   }
 
-  @ApiProperty({ description: '응답 결과' })
+  @ApiProperty({ description: '응답 결과', example: 'Response Data' })
   public data: T | string;
 }

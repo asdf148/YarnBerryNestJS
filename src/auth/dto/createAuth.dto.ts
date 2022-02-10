@@ -19,14 +19,26 @@ export class CreateAuthDTO {
   image: string;
 
   @IsString()
-  @ApiProperty({ description: '이름' })
+  @ApiProperty({
+    description: '이름',
+    example: '안녕안녕',
+    required: true,
+  })
   name: string;
 
   @IsEmail()
-  @ApiProperty({ description: '이메일' })
+  @ApiProperty({
+    description: '이메일',
+    example: 'asdf@asdf.com',
+    required: true,
+  })
   email: string;
 
   @IsString()
-  @ApiProperty({ description: '비밀번호' })
+  @ApiProperty({
+    description: '비밀번호',
+    example: '123456789',
+    required: true,
+  })
   password: string;
 }
