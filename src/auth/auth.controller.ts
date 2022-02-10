@@ -1,15 +1,30 @@
-import { Body, Controller, HttpStatus, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { SuccessResponseDTO } from '../dto/successResponse.dto';
 import { AuthService } from './auth.service';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { LoginDTO } from './dto/login.dto';
 import { Auth } from './entity/auth.entity';
+import { FailResponseDTO } from '../dto/failResponse.dto';
 
 @Controller('auth')
+@ApiTags('계정 API')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('signUp')
+  @ApiOperation({ summary: '회원가입 API', description: '유저 생성' })
+  @ApiCreatedResponse({ description: '유저 생성', type: SuccessResponseDTO })
+  @ApiBadRequestResponse({
+    description: '유저 생성 실패',
+    type: FailResponseDTO,
+  })
   async signUp(
     @Body() createAuth: CreateAuthDTO,
     @Res() res: Response,
@@ -28,6 +43,10 @@ export class AuthController {
     }
   }
 
+  @Post('login')
+  @ApiOperation({ summary: '로그인 API', description: '토큰 발급' })
+  @ApiCreatedResponse({ description: '토큰 발급', type: SuccessResponseDTO })
+  @ApiBadRequestResponse({ description: '토큰 실패', type: FailResponseDTO })
   async login(
     @Body() loginDTO: LoginDTO,
     @Res() res: Response,
