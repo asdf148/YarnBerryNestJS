@@ -2,21 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString } from 'class-validator';
 
 export class CreateAuthDTO {
-  constructor(
-    image?: string,
-    name?: string,
-    email?: string,
-    password?: string,
-  ) {
-    this.image = image;
+  constructor(name: string, email: string, password: string) {
     this.name = name;
     this.email = email;
     this.password = password;
   }
-
-  @IsString()
-  @ApiProperty({ description: '이미지 경로' })
-  image: string;
 
   @IsString()
   @ApiProperty({
