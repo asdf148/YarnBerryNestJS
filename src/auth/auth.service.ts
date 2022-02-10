@@ -17,12 +17,15 @@ export class AuthService {
   ) {}
 
   // 회원가입
-  async signUp(createAuth: CreateAuthDTO): Promise<Auth> {
+  async signUp(
+    createAuth: CreateAuthDTO,
+    img: Express.Multer.File,
+  ): Promise<Auth> {
     this.createAuthValidation(createAuth);
 
     const savedAuth: Auth = new Auth(
       null,
-      null,
+      img.filename,
       createAuth.name,
       createAuth.email,
       await hash(createAuth.password, 10),

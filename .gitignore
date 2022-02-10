@@ -45,3 +45,6 @@ lerna-debug.log*
 
 #Environment values
 .env
+
+#Files Save
+/files

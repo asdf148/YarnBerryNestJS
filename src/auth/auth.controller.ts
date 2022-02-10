@@ -1,4 +1,12 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -12,6 +20,8 @@ import { CreateAuthDTO } from './dto/createAuth.dto';
 import { LoginDTO } from './dto/login.dto';
 import { Auth } from './entity/auth.entity';
 import { FailResponseDTO } from '../dto/failResponse.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerDiskOptions } from 'src/global/multer.options';
 
 @Controller('auth')
 @ApiTags('계정 API')
@@ -25,12 +35,14 @@ export class AuthController {
     description: '유저 생성 실패',
     type: FailResponseDTO,
   })
+  @UseInterceptors(FileInterceptor('file', multerDiskOptions))
   async signUp(
+    @UploadedFile() img: Express.Multer.File,
     @Body() createAuth: CreateAuthDTO,
     @Res() res: Response,
   ): Promise<Response<any, Record<string, any>>> {
     try {
-      const savedAuth: Auth = await this.authService.signUp(createAuth);
+      const savedAuth: Auth = await this.authService.signUp(createAuth, img);
       const signUpSuccessResponse: SuccessResponseDTO<string> =
         new SuccessResponseDTO<string>('SignUp Success', savedAuth.email);
 

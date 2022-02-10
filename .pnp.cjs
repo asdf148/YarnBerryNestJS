@@ -48,6 +48,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/bcrypt", "npm:5.0.0"],
             ["@types/express", "npm:4.17.13"],
             ["@types/jest", "npm:27.4.0"],
+            ["@types/multer", "npm:1.4.7"],
             ["@types/node", "npm:16.11.21"],
             ["@types/supertest", "npm:2.0.11"],
             ["@typescript-eslint/eslint-plugin", "virtual:493c8a401715850cbff72d0addaa6ea245524628c3829c86d11707bd2cf65f4d0b1ed873adf142566f6b7b7f783e602d451e4dba04c544f7935c7174a568076e#npm:4.33.0"],
@@ -2047,6 +2048,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["@types/multer", [
+        ["npm:1.4.7", {
+          "packageLocation": "./.yarn/cache/@types-multer-npm-1.4.7-df3819be8e-680cb0710a.zip/node_modules/@types/multer/",
+          "packageDependencies": [
+            ["@types/multer", "npm:1.4.7"],
+            ["@types/express", "npm:4.17.13"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["@types/node", [
         ["npm:16.11.21", {
           "packageLocation": "./.yarn/cache/@types-node-npm-16.11.21-7c4c341552-75b679dc63.zip/node_modules/@types/node/",
@@ -2885,6 +2896,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/bcrypt", "npm:5.0.0"],
             ["@types/express", "npm:4.17.13"],
             ["@types/jest", "npm:27.4.0"],
+            ["@types/multer", "npm:1.4.7"],
             ["@types/node", "npm:16.11.21"],
             ["@types/supertest", "npm:2.0.11"],
             ["@typescript-eslint/eslint-plugin", "virtual:493c8a401715850cbff72d0addaa6ea245524628c3829c86d11707bd2cf65f4d0b1ed873adf142566f6b7b7f783e602d451e4dba04c544f7935c7174a568076e#npm:4.33.0"],
