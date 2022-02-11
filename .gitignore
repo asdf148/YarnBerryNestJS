@@ -48,3 +48,4 @@ lerna-debug.log*
 
 #Files Save
 /files
+/src/auth/constants.ts

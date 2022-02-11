@@ -5,12 +5,13 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Auth, AuthSchema } from './entity/auth.entity';
 import { AuthRepository } from './entity/auth.repository';
+import { jwtConstants } from './constants';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
     JwtModule.register({
-      secret: process.env.JWT_SECRET_KEY,
+      secret: jwtConstants.secret,
       signOptions: { issuer: 'MyServer' },
     }),
   ],

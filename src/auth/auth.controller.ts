@@ -44,7 +44,7 @@ export class AuthController {
     try {
       const savedAuth: Auth = await this.authService.signUp(createAuth, img);
       const signUpSuccessResponse: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('SignUp Success', savedAuth.email);
+        new SuccessResponseDTO<string>('SignUp Success', null, savedAuth.email);
 
       return res.status(HttpStatus.CREATED).json(signUpSuccessResponse);
     } catch (e) {
@@ -66,7 +66,7 @@ export class AuthController {
     try {
       const token: string = await this.authService.login(loginDTO);
       const loginSuccessResponse: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('Login Success', token);
+        new SuccessResponseDTO<string>('Login Success', null, token);
 
       return res.status(HttpStatus.CREATED).json(loginSuccessResponse);
     } catch (e) {

@@ -5,7 +5,6 @@ import { SignUpFailError } from '../dto/error/signUpFailError';
 import { LoginFailError } from '../dto/error/loginFailError';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { LoginDTO } from './dto/login.dto';
-import { TokenPayloadDTO } from './dto/tokenPayload.dto';
 import { Auth } from './entity/auth.entity';
 import { AuthRepository } from './entity/auth.repository';
 
@@ -25,11 +24,11 @@ export class AuthService {
 
     const savedAuth: Auth = new Auth(
       null,
-      img.filename,
+      img.filename ?? null,
       createAuth.name,
       createAuth.email,
       await hash(createAuth.password, 10),
-      [],
+      null,
     );
 
     return await this.authRepository.save(savedAuth);
@@ -75,7 +74,14 @@ export class AuthService {
     );
 
     if (await this.isExistAndIsPasswordMatch(foundAuth, loginDTO)) {
-      return this.jwtService.sign(new TokenPayloadDTO(foundAuth.email));
+      return this.jwtService.sign(
+        {
+          email: foundAuth.email,
+        },
+        {
+          expiresIn: '1d',
+        },
+      );
     } else {
       throw new LoginFailError('로그인 실패');
     }
