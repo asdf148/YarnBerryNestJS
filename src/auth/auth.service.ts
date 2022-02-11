@@ -23,8 +23,7 @@ export class AuthService {
     this.createAuthValidation(createAuth);
 
     const savedAuth: Auth = new Auth(
-      null,
-      img.filename ?? null,
+      typeof img == 'undefined' ? null : img.filename,
       createAuth.name,
       createAuth.email,
       await hash(createAuth.password, 10),

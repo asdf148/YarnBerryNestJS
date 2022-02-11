@@ -7,23 +7,18 @@ export type AuthDocument = Auth & mongoose.Document;
 @Schema()
 export class Auth {
   constructor(
-    id?: string,
     image?: string,
     name?: string,
     email?: string,
     password?: string,
     items?: Item[],
   ) {
-    this.id = id;
     this.image = image;
     this.name = name;
     this.email = email;
     this.password = password;
     this.items = items;
   }
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  id: string;
 
   @Prop({ type: String })
   image: string;

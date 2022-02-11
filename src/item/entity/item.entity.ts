@@ -5,9 +5,6 @@ export type ItemDocument = Item & mongoose.Document;
 
 @Schema()
 export class Item {
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  id: string;
-
   @Prop({ type: String, required: true })
   image: string;
 
