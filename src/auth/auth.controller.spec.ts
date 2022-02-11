@@ -1,5 +1,4 @@
 import { HttpStatus } from '@nestjs/common';
-import { response } from 'express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { hash } from 'bcrypt';
 import { SuccessResponseDTO } from '../dto/successResponse.dto';
@@ -8,14 +7,38 @@ import { AuthService } from './auth.service';
 import { CreateAuthDTO } from './dto/createAuth.dto';
 import { Auth } from './entity/auth.entity';
 import { LoginDTO } from './dto/login.dto';
+import { MulterModule } from '@nestjs/platform-express';
+import { Response } from 'express';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let service: AuthService;
+  const responseMock = {
+    statusCode: Number,
+
+    status: jest.fn((httpStatusCode: number) => {
+      responseMock.statusCode = httpStatusCode;
+      return responseMock;
+    }),
+    json: jest.fn((body) => {
+      responseMock.send = body;
+      return responseMock;
+    }),
+  } as unknown as Response;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController, AuthService],
+      imports: [MulterModule],
+      controllers: [AuthController],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            signUp: jest.fn(),
+            login: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -28,14 +51,12 @@ describe('AuthController', () => {
 
   it('회원가입 성공', async () => {
     const CreateAuth: CreateAuthDTO = new CreateAuthDTO(
-      null,
       'asdf',
       'asdf@asdf.com',
       'asdfqw12',
     );
 
     const foundAuth: Auth = new Auth(
-      null,
       null,
       'asdf',
       'asdf@asdf.com',
@@ -52,8 +73,8 @@ describe('AuthController', () => {
       .spyOn(service, 'signUp')
       .mockImplementation(() => Promise.resolve(foundAuth));
 
-    expect(await controller.signUp(CreateAuth, response)).toBe(
-      response.status(HttpStatus.CREATED).json(signUpSuccessResponse),
+    expect(await controller.signUp(null, CreateAuth, responseMock)).toBe(
+      responseMock.status(HttpStatus.CREATED).json(signUpSuccessResponse),
     );
   });
 
@@ -62,6 +83,7 @@ describe('AuthController', () => {
 
     const loginSuccessResponse = new SuccessResponseDTO<string>(
       'Login Success',
+      null,
       'token',
     );
 
@@ -69,8 +91,11 @@ describe('AuthController', () => {
       .spyOn(service, 'login')
       .mockImplementation(() => Promise.resolve('token'));
 
-    expect(await controller.login(loginAuth, response)).toBe(
-      response.status(HttpStatus.OK).json(loginSuccessResponse),
-    );
+    const result = await controller.login(loginAuth, responseMock);
+    const expectValue = responseMock
+      .status(HttpStatus.OK)
+      .json(loginSuccessResponse);
+
+    expect(result).toBe(expectValue);
   });
 });

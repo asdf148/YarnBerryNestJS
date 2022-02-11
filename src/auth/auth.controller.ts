@@ -21,7 +21,7 @@ import { LoginDTO } from './dto/login.dto';
 import { Auth } from './entity/auth.entity';
 import { FailResponseDTO } from '../dto/failResponse.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerDiskOptions } from 'src/global/multer.options';
+import { multerDiskOptions } from '../global/multer.options';
 
 @Controller('auth')
 @ApiTags('계정 API')
@@ -97,11 +97,11 @@ export class AuthController {
     state?: string,
     message?: string,
   ): Response<any, Record<string, any>> {
-    const loginFailResponse: FailResponseDTO = new FailResponseDTO(
+    const failResponse: FailResponseDTO = new FailResponseDTO(
       state ?? null,
       message ?? null,
     );
 
-    return res.status(HttpStatus.BAD_REQUEST).json(loginFailResponse);
+    return res.status(HttpStatus.BAD_REQUEST).json(failResponse);
   }
 }
