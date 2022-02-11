@@ -43,15 +43,15 @@ export class AuthController {
   ): Promise<Response<any, Record<string, any>>> {
     try {
       const savedAuth: Auth = await this.authService.signUp(createAuth, img);
-      const signUpSuccessResponse: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('SignUp Success', null, savedAuth.email);
 
-      return res.status(HttpStatus.CREATED).json(signUpSuccessResponse);
+      return this.ReturnSuccessResponse<string>(
+        res,
+        'SignUp Success',
+        null,
+        savedAuth.email,
+      );
     } catch (e) {
-      const signUpFailResponse: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('SignUp Fail', e.message);
-
-      return res.status(HttpStatus.BAD_REQUEST).json(signUpFailResponse);
+      return this.ReturnFailResponse(res, 'SignUp Fail', e.message);
     }
   }
 
@@ -65,15 +65,43 @@ export class AuthController {
   ): Promise<Response<any, Record<string, any>>> {
     try {
       const token: string = await this.authService.login(loginDTO);
-      const loginSuccessResponse: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('Login Success', null, token);
 
-      return res.status(HttpStatus.CREATED).json(loginSuccessResponse);
+      return this.ReturnSuccessResponse<string>(
+        res,
+        'Login Success',
+        null,
+        token,
+      );
     } catch (e) {
-      const loginFailResponse: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('Login Fail', e.message);
-
-      return res.status(HttpStatus.BAD_REQUEST).json(loginFailResponse);
+      return this.ReturnFailResponse(res, 'Login Fail', e.message);
     }
+  }
+
+  ReturnSuccessResponse<T>(
+    res: Response,
+    state?: string,
+    message?: string,
+    data?: T,
+  ): Response<any, Record<string, any>> {
+    const successResponse: SuccessResponseDTO<T> = new SuccessResponseDTO<T>(
+      state ?? null,
+      message ?? null,
+      data ?? null,
+    );
+
+    return res.status(HttpStatus.CREATED).json(successResponse);
+  }
+
+  ReturnFailResponse(
+    res: Response,
+    state?: string,
+    message?: string,
+  ): Response<any, Record<string, any>> {
+    const loginFailResponse: FailResponseDTO = new FailResponseDTO(
+      state ?? null,
+      message ?? null,
+    );
+
+    return res.status(HttpStatus.BAD_REQUEST).json(loginFailResponse);
   }
 }
