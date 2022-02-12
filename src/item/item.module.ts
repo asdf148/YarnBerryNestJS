@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ItemService } from './item.service';
 
-@Module({})
+@Module({
+  providers: [ItemService]
+})
 export class ItemModule {}
