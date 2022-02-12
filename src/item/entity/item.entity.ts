@@ -8,17 +8,17 @@ export class Item {
   constructor(
     location?: string,
     image?: string,
-    name?: string,
-    price?: number,
-    description?: string,
+    title?: string,
+    star?: number,
+    content?: string,
     category?: string,
     writer?: Record<string, any>,
   ) {
     this.location = location;
     this.image = image;
-    this.title = name;
-    this.star = price;
-    this.content = description;
+    this.title = title;
+    this.star = star;
+    this.content = content;
     this.category = category;
     this.writer = writer;
   }
