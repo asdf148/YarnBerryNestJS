@@ -19,6 +19,7 @@ export class Auth {
     this.password = password;
     this.items = items;
   }
+  _id: string;
 
   @Prop({ type: String })
   image: string;
