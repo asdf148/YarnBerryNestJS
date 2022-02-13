@@ -8,14 +8,12 @@ export class CreateItem {
     star?: number,
     content?: string,
     category?: string,
-    writer?: Record<string, any>,
   ) {
     this.location = location;
     this.title = title;
     this.star = star;
     this.content = content;
     this.category = category;
-    this.writer = writer;
   }
 
   @IsString()
@@ -57,15 +55,4 @@ export class CreateItem {
     required: true,
   })
   public category: string;
-
-  @IsString()
-  @ApiProperty({
-    description: '작성자',
-    example: {
-      _id: '5e9f8f8f8f8f8f8f8f8f8f8',
-      name: '안녕안녕',
-    },
-    required: true,
-  })
-  public writer: Record<string, any>;
 }
