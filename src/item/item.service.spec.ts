@@ -17,7 +17,7 @@ describe('ItemService', () => {
     expect(service).toBeDefined();
   });
 
-  it('Create Item', async () => {
+  it('Create Item 성공', async () => {
     const createItem = new CreateItem(
       '서울시 서초구 서초동',
       'ㅇㅇ카페',
@@ -30,11 +30,7 @@ describe('ItemService', () => {
       },
     );
 
-    try {
-      await service.createItem(createItem);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-      expect(e.message).toBe('Failed to create item');
-    }
+    const result: string = await service.createItem(createItem);
+    expect(result).toBe('Create Item Success');
   });
 });
