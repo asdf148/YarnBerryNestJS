@@ -18,7 +18,7 @@ export class ItemService {
     img: Express.Multer.File,
     userId: string,
     createItem: CreateItem,
-  ) {
+  ): Promise<string> {
     let foundUser = new Auth();
     try {
       foundUser = await this.authRepository.findOne(userId);
@@ -29,6 +29,7 @@ export class ItemService {
     const createItemToItem =
       this.itemDTOConversion.CreateItemToItem(createItem);
 
+    createItemToItem.image = img.filename;
     createItemToItem.writer = { _id: foundUser._id, name: foundUser.name };
 
     try {
