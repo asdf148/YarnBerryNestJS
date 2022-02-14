@@ -4,7 +4,7 @@ import { AuthRepository } from '../auth/entity/auth.repository';
 import { CreateItem } from './dto/createItem.dto';
 import { ItemRepository } from './entity/item.repository';
 import { ItemDTOConversion } from './item.dto.conversion';
-import { Auth } from 'src/auth/entity/auth.entity';
+import { Auth } from '../auth/entity/auth.entity';
 
 @Injectable()
 export class ItemService {
