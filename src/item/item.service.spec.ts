@@ -13,10 +13,8 @@ describe('ItemService', () => {
   let repository: ItemRepository;
   let authRepository: AuthRepository;
   let initCreateItem: CreateItem;
-  let initFindUserSuccessMocking: jest.SpyInstance<Promise<Auth>, [id: string]>;
-  let initSaveItemSuccessMocking: jest.SpyInstance<Promise<Item>, [item: Item]>;
-  let initFindUserFailMocking: jest.SpyInstance<Promise<Auth>, [id: string]>;
-  let initSaveItemFailMocking: jest.SpyInstance<Promise<Item>, [item: Item]>;
+  let initSavedItem: Item;
+  let initFoundUser: Auth;
 
   beforeAll(() => {
     const createItem = new CreateItem(
@@ -39,31 +37,9 @@ describe('ItemService', () => {
     const foundUser = new Auth(null, '안녕안녕', 'asdf@asdf.com', null, null);
     foundUser._id = '5e9f9c9f9c9f9c9f9c9f9c9';
 
-    const findUserSuccess = jest
-      .spyOn(authRepository, 'findOne')
-      .mockImplementation(() => Promise.resolve(foundUser));
-
-    const saveItemSuccess = jest
-      .spyOn(repository, 'save')
-      .mockImplementation(() => Promise.resolve(savedItem));
-
-    const findUserFail = jest
-      .spyOn(authRepository, 'findOne')
-      .mockImplementation(() => {
-        throw new Error("Can't find user");
-      });
-
-    const saveItemFail = jest
-      .spyOn(repository, 'save')
-      .mockImplementation(() => {
-        throw new Error("Can't save item");
-      });
-
     initCreateItem = createItem;
-    initFindUserSuccessMocking = findUserSuccess;
-    initSaveItemSuccessMocking = saveItemSuccess;
-    initFindUserFailMocking = findUserFail;
-    initSaveItemFailMocking = saveItemFail;
+    initSavedItem = savedItem;
+    initFoundUser = foundUser;
   });
 
   beforeEach(async () => {
@@ -95,9 +71,9 @@ describe('ItemService', () => {
   });
 
   it('Create Item 성공', async () => {
-    initFindUserSuccessMocking;
+    jest.spyOn(authRepository, 'findOne').mockResolvedValue(initFoundUser);
 
-    initSaveItemSuccessMocking;
+    jest.spyOn(repository, 'save').mockResolvedValue(initSavedItem);
 
     const result: string = await service.createItem(
       '5e9f9c9f9c9f9c9f9c9f9c9',
@@ -107,7 +83,9 @@ describe('ItemService', () => {
   });
 
   it('Create Item 실패 (가입되지 않은 유저)', async () => {
-    initFindUserFailMocking;
+    jest.spyOn(authRepository, 'findOne').mockImplementation(() => {
+      throw new Error("Can't find user");
+    });
 
     try {
       await service.createItem('5e9f9c9f9c9f9c9f9c9f9c9', initCreateItem);
@@ -118,9 +96,11 @@ describe('ItemService', () => {
   });
 
   it('Create Item 실패 (Item 저장 실패)', async () => {
-    initFindUserSuccessMocking;
+    jest.spyOn(authRepository, 'findOne').mockResolvedValue(initFoundUser);
 
-    initSaveItemFailMocking;
+    jest.spyOn(repository, 'save').mockImplementation(() => {
+      throw new Error("Can't save item");
+    });
 
     try {
       await service.createItem('5e9f9c9f9c9f9c9f9c9f9c9', initCreateItem);
