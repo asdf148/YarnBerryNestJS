@@ -1,16 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthRepository } from '../auth/entity/auth.repository';
-import { Auth, AuthSchema } from '../auth/entity/auth.entity';
 import { Item, ItemSchema } from './entity/item.entity';
 import { ItemRepository } from './entity/item.repository';
 import { ItemService } from './item.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
     MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema }]),
   ],
-  providers: [ItemService, AuthRepository, ItemRepository],
+  providers: [ItemService, ItemRepository],
 })
 export class ItemModule {}

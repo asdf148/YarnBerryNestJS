@@ -15,9 +15,9 @@ export class ItemService {
   itemDTOConversion = new ItemDTOConversion();
 
   async createItem(
-    img: Express.Multer.File,
     userId: string,
     createItem: CreateItem,
+    img?: Express.Multer.File,
   ): Promise<string> {
     let foundUser = new Auth();
     try {
@@ -29,7 +29,7 @@ export class ItemService {
     const createItemToItem =
       this.itemDTOConversion.CreateItemToItem(createItem);
 
-    createItemToItem.image = img.filename;
+    createItemToItem.image = typeof img == 'undefined' ? null : img.filename;
     createItemToItem.writer = { _id: foundUser._id, name: foundUser.name };
 
     try {

@@ -89,10 +89,6 @@ describe('ItemService', () => {
       throw new Error("Can't find user");
     });
 
-    // jest
-    //   .spyOn(repository, 'save')
-    //   .mockImplementation(() => Promise.resolve(initSavedItem));
-
     try {
       await service.createItem('5e9f9c9f9c9f9c9f9c9f9c9', initCreateItem);
     } catch (e) {
