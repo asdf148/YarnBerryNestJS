@@ -8,10 +8,35 @@ import { Item } from './entity/item.entity';
 import { ItemRepository } from './entity/item.repository';
 import { ItemService } from './item.service';
 
+let service: ItemService;
+let repository: ItemRepository;
+let authRepository: AuthRepository;
+
+async function injectDependence() {
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      ItemService,
+      ItemRepository,
+      {
+        provide: getModelToken(Item.name),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        useFactory: () => {},
+      },
+      AuthRepository,
+      {
+        provide: getModelToken(Auth.name),
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        useFactory: () => {},
+      },
+    ],
+  }).compile();
+
+  service = module.get<ItemService>(ItemService);
+  repository = module.get<ItemRepository>(ItemRepository);
+  authRepository = module.get<AuthRepository>(AuthRepository);
+}
+
 describe('ItemService: CreateItem', () => {
-  let service: ItemService;
-  let repository: ItemRepository;
-  let authRepository: AuthRepository;
   let initCreateItem: CreateOrModifyItem;
   let initSavedItem: Item;
   let initFoundUser: Auth;
@@ -43,27 +68,7 @@ describe('ItemService: CreateItem', () => {
   });
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ItemService,
-        ItemRepository,
-        {
-          provide: getModelToken(Item.name),
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          useFactory: () => {},
-        },
-        AuthRepository,
-        {
-          provide: getModelToken(Auth.name),
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          useFactory: () => {},
-        },
-      ],
-    }).compile();
-
-    service = module.get<ItemService>(ItemService);
-    repository = module.get<ItemRepository>(ItemRepository);
-    authRepository = module.get<AuthRepository>(AuthRepository);
+    await injectDependence();
   });
 
   it('should be defined', () => {
@@ -115,6 +120,7 @@ describe('ItemService: ModifyItem', () => {
   let service: ItemService;
   let repository: ItemRepository;
   let initFoundItem: Item;
+  let authRepository: AuthRepository;
 
   beforeAll(() => {
     const foundItem = new Item(
@@ -135,20 +141,7 @@ describe('ItemService: ModifyItem', () => {
   });
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ItemService,
-        ItemRepository,
-        {
-          provide: getModelToken(Item.name),
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          useFactory: () => {},
-        },
-      ],
-    }).compile();
-
-    service = module.get<ItemService>(ItemService);
-    repository = module.get<ItemRepository>(ItemRepository);
+    await injectDependence();
   });
 
   it('Modify Item 성공', async () => {
@@ -179,7 +172,7 @@ describe('ItemService: ModifyItem', () => {
     const result: string = await service.modifyItem(
       '4e0a0d0a0d0a0d0a0d0a0d0',
       modifyItem,
-      '수정된 이미지'
+      undefined,
     );
     expect(result).toBe('Modify Item Success');
   });
