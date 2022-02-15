@@ -7,6 +7,7 @@ import { CreateOrModifyItem } from './dto/createOrModifyItem.dto';
 import { Item } from './entity/item.entity';
 import { ItemRepository } from './entity/item.repository';
 import { ItemService } from './item.service';
+import { ModifyItemFail } from '../dto/error/modifyItemFailError';
 
 let service: ItemService;
 let repository: ItemRepository;
@@ -117,10 +118,9 @@ describe('ItemService: CreateItem', () => {
 });
 
 describe('ItemService: ModifyItem', () => {
-  let service: ItemService;
-  let repository: ItemRepository;
   let initFoundItem: Item;
-  let authRepository: AuthRepository;
+  let initModifyItem: CreateOrModifyItem;
+  let initModifySavedItem: Item;
 
   beforeAll(() => {
     const foundItem = new Item(
@@ -136,16 +136,6 @@ describe('ItemService: ModifyItem', () => {
       },
     );
     foundItem._id = '4e0a0d0a0d0a0d0a0d0a0d0';
-
-    initFoundItem = foundItem;
-  });
-
-  beforeEach(async () => {
-    await injectDependence();
-  });
-
-  it('Modify Item 성공', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
 
     const modifyItem = new CreateOrModifyItem(
       '서울특별시 마포구 ㅇㅇ로',
@@ -163,15 +153,56 @@ describe('ItemService: ModifyItem', () => {
       modifyItem.content,
       modifyItem.category,
     );
+    modifySavedItem._id = foundItem._id;
+    modifySavedItem.writer = foundItem.writer;
 
-    modifySavedItem._id = initFoundItem._id;
-    modifySavedItem.writer = initFoundItem.writer;
+    initFoundItem = foundItem;
+    initModifyItem = modifyItem;
+    initModifySavedItem = modifySavedItem;
+  });
 
-    jest.spyOn(repository, 'update').mockResolvedValue(modifySavedItem);
+  beforeEach(async () => {
+    await injectDependence();
+  });
+
+  it('Modify Item 성공', async () => {
+    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
+
+    jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
 
     const result: string = await service.modifyItem(
       '4e0a0d0a0d0a0d0a0d0a0d0',
-      modifyItem,
+      initModifyItem,
+      undefined,
+    );
+    expect(result).toBe('Modify Item Success');
+  });
+
+  it('Modify Item 실패 (존재하지 않는 Item)', async () => {
+    jest.spyOn(repository, 'findOne').mockImplementation(() => {
+      throw new Error("Can't find user");
+    });
+
+    try {
+      await service.modifyItem(
+        '4e0a0d0a0d0a0d0a0d0a0d0',
+        initModifyItem,
+        undefined,
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(ModifyItemFail);
+      expect(e.message).toBe('Fail to modify item: Item not found');
+    }
+  });
+
+  it('Modify Item 실패 (Item 저장 실패)', async () => {
+    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
+
+    jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
+
+    const result: string = await service.modifyItem(
+      '4e0a0d0a0d0a0d0a0d0a0d0',
+      initModifyItem,
       undefined,
     );
     expect(result).toBe('Modify Item Success');
