@@ -1,15 +1,15 @@
-import { CreateItem } from './dto/createItem.dto';
+import { CreateOrModifyItem } from './dto/createOrModifyItem.dto';
 import { Item } from './entity/item.entity';
 
 export class ItemDTOConversion {
-  public CreateItemToItem(createItem: CreateItem) {
+  public CreateOrModifyItemToItem(createOrModifyItem: CreateOrModifyItem) {
     const item = new Item(
-      createItem.location,
+      createOrModifyItem.location,
       null,
-      createItem.title,
-      createItem.star,
-      createItem.content,
-      createItem.category,
+      createOrModifyItem.title,
+      createOrModifyItem.star,
+      createOrModifyItem.content,
+      createOrModifyItem.category,
     );
 
     return item;

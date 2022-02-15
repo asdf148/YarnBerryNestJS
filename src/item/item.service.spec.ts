@@ -3,21 +3,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateItemFail } from '../dto/error/createItemFailError';
 import { Auth } from '../auth/entity/auth.entity';
 import { AuthRepository } from '../auth/entity/auth.repository';
-import { CreateItem } from './dto/createItem.dto';
+import { CreateOrModifyItem } from './dto/createOrModifyItem.dto';
 import { Item } from './entity/item.entity';
 import { ItemRepository } from './entity/item.repository';
 import { ItemService } from './item.service';
 
-describe('ItemService', () => {
+describe('ItemService: CreateItem', () => {
   let service: ItemService;
   let repository: ItemRepository;
   let authRepository: AuthRepository;
-  let initCreateItem: CreateItem;
+  let initCreateItem: CreateOrModifyItem;
   let initSavedItem: Item;
   let initFoundUser: Auth;
 
   beforeAll(() => {
-    const createItem = new CreateItem(
+    const createItem = new CreateOrModifyItem(
       '서울시 서초구 서초동',
       'ㅇㅇ카페',
       4.0,
@@ -108,5 +108,79 @@ describe('ItemService', () => {
       expect(e).toBeInstanceOf(CreateItemFail);
       expect(e.message).toBe('Fail to create item: Item save fail');
     }
+  });
+});
+
+describe('ItemService: ModifyItem', () => {
+  let service: ItemService;
+  let repository: ItemRepository;
+  let initFoundItem: Item;
+
+  beforeAll(() => {
+    const foundItem = new Item(
+      '서울시 서초구 서초동',
+      null,
+      'ㅇㅇ카페',
+      4.0,
+      '이 카페는 좋은 카페입니다.',
+      '카페',
+      {
+        _id: '5e9f9c9f9c9f9c9f9c9f9c9',
+        name: '안녕안녕',
+      },
+    );
+    foundItem._id = '4e0a0d0a0d0a0d0a0d0a0d0';
+
+    initFoundItem = foundItem;
+  });
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ItemService,
+        ItemRepository,
+        {
+          provide: getModelToken(Item.name),
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          useFactory: () => {},
+        },
+      ],
+    }).compile();
+
+    service = module.get<ItemService>(ItemService);
+    repository = module.get<ItemRepository>(ItemRepository);
+  });
+
+  it('Modify Item 성공', async () => {
+    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
+
+    const modifyItem = new CreateOrModifyItem(
+      '서울특별시 마포구 ㅇㅇ로',
+      'ㅇㅇ포차',
+      2.5,
+      '이 술집 별로임',
+      '술집',
+    );
+
+    const modifySavedItem = new Item(
+      modifyItem.location,
+      '수정된 이미지',
+      modifyItem.title,
+      modifyItem.star,
+      modifyItem.content,
+      modifyItem.category,
+    );
+
+    modifySavedItem._id = initFoundItem._id;
+    modifySavedItem.writer = initFoundItem.writer;
+
+    jest.spyOn(repository, 'update').mockResolvedValue(modifySavedItem);
+
+    const result: string = await service.modifyItem(
+      '4e0a0d0a0d0a0d0a0d0a0d0',
+      modifyItem,
+      '수정된 이미지'
+    );
+    expect(result).toBe('Modify Item Success');
   });
 });

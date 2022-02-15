@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateItemFail } from '../dto/error/createItemFailError';
 import { AuthRepository } from '../auth/entity/auth.repository';
-import { CreateItem } from './dto/createItem.dto';
+import { CreateOrModifyItem } from './dto/createOrModifyItem.dto';
 import { ItemRepository } from './entity/item.repository';
 import { ItemDTOConversion } from './item.dto.conversion';
 import { Auth } from '../auth/entity/auth.entity';
@@ -16,7 +16,7 @@ export class ItemService {
 
   async createItem(
     userId: string,
-    createItem: CreateItem,
+    createItem: CreateOrModifyItem,
     img?: Express.Multer.File,
   ): Promise<string> {
     let foundUser = new Auth();
@@ -27,7 +27,7 @@ export class ItemService {
     }
 
     const createItemToItem =
-      this.itemDTOConversion.CreateItemToItem(createItem);
+      this.itemDTOConversion.CreateOrModifyItemToItem(createItem);
 
     createItemToItem.image = typeof img == 'undefined' ? null : img.filename;
     createItemToItem.writer = { _id: foundUser._id, name: foundUser.name };

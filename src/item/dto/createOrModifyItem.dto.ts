@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 
-export class CreateItem {
+export class CreateOrModifyItem {
   constructor(
     location?: string,
     title?: string,
