@@ -7,6 +7,7 @@ import { ItemDTOConversion } from './item.dto.conversion';
 import { Auth } from '../auth/entity/auth.entity';
 import { ModifyItemFail } from '../dto/error/modifyItemFailError';
 import { Item } from './entity/item.entity';
+import { DeleteItemFailError } from './dto/error/deleteItemFailError';
 
 @Injectable()
 export class ItemService {
@@ -66,6 +67,34 @@ export class ItemService {
       return 'Modify Item Success';
     } catch (e) {
       throw new ModifyItemFail('Fail to modify item: Item save fail');
+    }
+  }
+
+  async deleteItem(userId: string, deleteItemId: string): Promise<string> {
+    let foundUser: Auth;
+    let foundItem: Item;
+    try {
+      foundUser = await this.authRepository.findOne(userId);
+    } catch (e) {
+      throw new DeleteItemFailError('Fail to Delete item: User not found');
+    }
+    try {
+      foundItem = await this.itemRepository.findOne(deleteItemId);
+    } catch (e) {
+      throw new DeleteItemFailError('Fail to Delete item: Item not found');
+    }
+
+    const writer: Record<string, any> = foundItem.writer;
+
+    if (writer._id == foundUser._id) {
+      try {
+        this.itemRepository.delete(deleteItemId);
+      } catch (e) {
+        throw new DeleteItemFailError('Fail to Delete item: Item delete fail');
+      }
+      return 'Delete Item Success';
+    } else {
+      throw new DeleteItemFailError('Fail to Delete item: No permission');
     }
   }
 }
