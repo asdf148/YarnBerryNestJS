@@ -217,10 +217,14 @@ describe('ItemService: ModifyItem', () => {
 describe('ItemService: DeleteItem', () => {
   let initFoundUser: Auth;
   let initFoundItem: Item;
+  let initDifferentUser: Auth;
 
   beforeAll(() => {
     const foundUser = new Auth(null, '안녕안녕', 'asdf@asdf.com', null, []);
     foundUser._id = '5e9f9c9f9c9f9c9f9c9f9c9';
+
+    const differenUser = new Auth(null, '하이하이', 'zxcv@zxcv.com', null, []);
+    differenUser._id = '1a2x2s2x2s2x2s2x2s2x2s2';
 
     const item = new Item(
       '서울시 서초구 서초동',
@@ -240,6 +244,7 @@ describe('ItemService: DeleteItem', () => {
 
     initFoundUser = foundUser;
     initFoundItem = item;
+    initDifferentUser = differenUser;
   });
 
   beforeEach(async () => {
@@ -290,11 +295,31 @@ describe('ItemService: DeleteItem', () => {
       );
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
-      expect(e.message).toBe('Fail to Delete item: User not found');
+      expect(e.message).toBe('Fail to Delete item: Item not found');
     }
   });
 
   it('Delete Item 실패 (존재하지 않는 Item)', async () => {
+    jest.spyOn(authRepository, 'findOne').mockResolvedValue(initDifferentUser);
+
+    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
+
+    jest.spyOn(repository, 'delete').mockImplementation(() => {
+      throw new Error("Can't delete item");
+    });
+
+    try {
+      await service.deleteItem(
+        '1a2x2s2x2s2x2s2x2s2x2s2',
+        '4e0a0d0a0d0a0d0a0d0a0d0',
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(DeleteItemFailError);
+      expect(e.message).toBe('Fail to Delete item: No permission');
+    }
+  });
+
+  it('Delete Item 실패 (Item 삭제 실패)', async () => {
     jest.spyOn(authRepository, 'findOne').mockResolvedValue(initFoundUser);
 
     jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
