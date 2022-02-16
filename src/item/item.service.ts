@@ -22,24 +22,44 @@ export class ItemService {
     createItem: CreateOrModifyItem,
     img?: Express.Multer.File,
   ): Promise<string> {
-    let foundUser = new Auth();
-    try {
-      foundUser = await this.authRepository.findOne(userId);
-    } catch (e) {
-      throw new CreateItemFail('Fail to create item: User not found');
-    }
-
-    const createItemToItem =
-      this.itemDTOConversion.CreateOrModifyItemToItem(createItem);
-
-    createItemToItem.image = typeof img == 'undefined' ? null : img.filename;
-    createItemToItem.writer = { _id: foundUser._id, name: foundUser.name };
+    const foundUser = await this.findUser('create', userId);
+    const itemWithWriter = this.createItemWithWriter(
+      foundUser,
+      createItem,
+      img,
+    );
 
     try {
-      await this.itemRepository.save(createItemToItem);
+      await this.itemRepository.save(itemWithWriter);
       return 'Create Item Success';
     } catch (e) {
       throw new CreateItemFail('Fail to create item: Item save fail');
+    }
+  }
+
+  private createItemWithWriter(
+    foundUser: Auth,
+    createItem: CreateOrModifyItem,
+    img?: Express.Multer.File,
+  ): Item {
+    const itemWithWriter =
+      this.itemDTOConversion.CreateOrModifyItemToItem(createItem);
+
+    itemWithWriter.image = typeof img == 'undefined' ? null : img.filename;
+    itemWithWriter.writer = { _id: foundUser._id, name: foundUser.name };
+
+    return itemWithWriter;
+  }
+
+  private async findUser(method: string, userId: string): Promise<Auth> {
+    try {
+      return await this.authRepository.findOne(userId);
+    } catch (e) {
+      if (method == 'create') {
+        throw new CreateItemFail(`Fail to ${method} item: User not found`);
+      } else {
+        throw new DeleteItemFailError(`Fail to ${method} item: User not found`);
+      }
     }
   }
 
@@ -48,13 +68,26 @@ export class ItemService {
     modifyItem: CreateOrModifyItem,
     img?: Express.Multer.File,
   ): Promise<string> {
-    let foundItem = new Item();
-    try {
-      foundItem = await this.itemRepository.findOne(itemId);
-    } catch (e) {
-      throw new ModifyItemFail('Fail to modify item: Item not found');
-    }
+    const foundItem = await this.findItem('modify', itemId);
+    const foundItemWithModifyItemValue = this.injectModifyItemValue(
+      foundItem,
+      modifyItem,
+      img,
+    );
 
+    try {
+      await this.itemRepository.update(itemId, foundItemWithModifyItemValue);
+      return 'Modify Item Success';
+    } catch (e) {
+      throw new ModifyItemFail('Fail to modify item: Item save fail');
+    }
+  }
+
+  private injectModifyItemValue(
+    foundItem: Item,
+    modifyItem: CreateOrModifyItem,
+    img?: Express.Multer.File,
+  ): Item {
     foundItem.location = modifyItem.location;
     foundItem.image = typeof img == 'undefined' ? null : img.filename;
     foundItem.star = modifyItem.star;
@@ -62,39 +95,49 @@ export class ItemService {
     foundItem.content = modifyItem.content;
     foundItem.category = modifyItem.category;
 
+    return foundItem;
+  }
+
+  private async findItem(method: string, itemId: string): Promise<Item> {
     try {
-      await this.itemRepository.update(itemId, foundItem);
-      return 'Modify Item Success';
+      return await this.itemRepository.findOne(itemId);
     } catch (e) {
-      throw new ModifyItemFail('Fail to modify item: Item save fail');
+      if (method == 'modify') {
+        throw new ModifyItemFail(`Fail to ${method} item: Item not found`);
+      } else {
+        throw new DeleteItemFailError(`Fail to ${method} item: Item not found`);
+      }
     }
   }
 
   async deleteItem(userId: string, deleteItemId: string): Promise<string> {
-    let foundUser: Auth;
-    let foundItem: Item;
-    try {
-      foundUser = await this.authRepository.findOne(userId);
-    } catch (e) {
-      throw new DeleteItemFailError('Fail to Delete item: User not found');
-    }
-    try {
-      foundItem = await this.itemRepository.findOne(deleteItemId);
-    } catch (e) {
-      throw new DeleteItemFailError('Fail to Delete item: Item not found');
-    }
+    const foundUser = await this.findUser('delete', userId);
+    const foundItem = await this.findItem('delete', deleteItemId);
 
-    const writer: Record<string, any> = foundItem.writer;
+    this.permissionCheck(foundItem.writer._id, foundUser._id);
 
-    if (writer._id == foundUser._id) {
-      try {
-        this.itemRepository.delete(deleteItemId);
-      } catch (e) {
-        throw new DeleteItemFailError('Fail to Delete item: Item delete fail');
-      }
+    return this.deleteItemWithErrorHandling(deleteItemId);
+  }
+
+  private permissionCheck(itemWriterId: string, userId: string): void {
+    if (!this.isItemWriterIdAndUserIdEqual(itemWriterId, userId)) {
+      throw new DeleteItemFailError('Fail to delete item: No permission');
+    }
+  }
+
+  private isItemWriterIdAndUserIdEqual(
+    itemWriterId: string,
+    userId: string,
+  ): boolean {
+    return itemWriterId == userId;
+  }
+
+  private deleteItemWithErrorHandling(deleteItemId: string): string {
+    try {
+      this.itemRepository.delete(deleteItemId);
       return 'Delete Item Success';
-    } else {
-      throw new DeleteItemFailError('Fail to Delete item: No permission');
+    } catch (e) {
+      throw new DeleteItemFailError('Fail to delete item: Item delete fail');
     }
   }
 }
