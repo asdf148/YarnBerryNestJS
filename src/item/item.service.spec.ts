@@ -8,6 +8,7 @@ import { Item } from './entity/item.entity';
 import { ItemRepository } from './entity/item.repository';
 import { ItemService } from './item.service';
 import { ModifyItemFail } from '../dto/error/modifyItemFailError';
+import { DeleteItemFailError } from './dto/error/deleteItemFailError';
 
 let service: ItemService;
 let repository: ItemRepository;
@@ -200,11 +201,116 @@ describe('ItemService: ModifyItem', () => {
 
     jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
 
-    const result: string = await service.modifyItem(
-      '4e0a0d0a0d0a0d0a0d0a0d0',
-      initModifyItem,
-      undefined,
+    try {
+      await service.modifyItem(
+        '4e0a0d0a0d0a0d0a0d0a0d0',
+        initModifyItem,
+        undefined,
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(ModifyItemFail);
+      expect(e.message).toBe('Fail to modify item: Item save fail');
+    }
+  });
+});
+
+describe('ItemService: DeleteItem', () => {
+  let initFoundUser: Auth;
+  let initFoundItem: Item;
+
+  beforeAll(() => {
+    const foundUser = new Auth(null, '안녕안녕', 'asdf@asdf.com', null, []);
+    foundUser._id = '5e9f9c9f9c9f9c9f9c9f9c9';
+
+    const item = new Item(
+      '서울시 서초구 서초동',
+      null,
+      'ㅇㅇ카페',
+      4.0,
+      '이 카페는 좋은 카페입니다.',
+      '카페',
+      {
+        _id: '5e9f9c9f9c9f9c9f9c9f9c9',
+        name: '안녕안녕',
+      },
     );
-    expect(result).toBe('Modify Item Success');
+    item._id = '4e0a0d0a0d0a0d0a0d0a0d0';
+
+    foundUser.items.push(item);
+
+    initFoundUser = foundUser;
+    initFoundItem = item;
+  });
+
+  beforeEach(async () => {
+    await injectDependence();
+  });
+
+  it('Delete Item 성공', async () => {
+    jest.spyOn(authRepository, 'findOne').mockResolvedValue(initFoundUser);
+
+    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
+
+    jest.spyOn(repository, 'delete').mockResolvedValue(new Item());
+
+    const result = await service.deleteItem(
+      '5e9f9c9f9c9f9c9f9c9f9c9',
+      '4e0a0d0a0d0a0d0a0d0a0d0',
+    );
+    expect(result).toBe('Delete Item Success');
+  });
+
+  it('Delete Item 실패 (가입되지 않은 auth)', async () => {
+    jest.spyOn(authRepository, 'findOne').mockImplementation(() => {
+      throw new Error("Can't find user");
+    });
+
+    try {
+      await service.deleteItem(
+        '5e9f9c9f9c9f9c9f9c9f9c9',
+        '4e0a0d0a0d0a0d0a0d0a0d0',
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(DeleteItemFailError);
+      expect(e.message).toBe('Fail to Delete item: User not found');
+    }
+  });
+
+  it('Delete Item 실패 (존재하지 않는 Item)', async () => {
+    jest.spyOn(authRepository, 'findOne').mockResolvedValue(initFoundUser);
+
+    jest.spyOn(repository, 'findOne').mockImplementation(() => {
+      throw new Error("Can't find item");
+    });
+
+    try {
+      await service.deleteItem(
+        '5e9f9c9f9c9f9c9f9c9f9c9',
+        '4e0a0d0a0d0a0d0a0d0a0d0',
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(DeleteItemFailError);
+      expect(e.message).toBe('Fail to Delete item: User not found');
+    }
+  });
+
+  it('Delete Item 실패 (존재하지 않는 Item)', async () => {
+    jest.spyOn(authRepository, 'findOne').mockResolvedValue(initFoundUser);
+
+    jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
+
+    jest.spyOn(repository, 'delete').mockImplementation(() => {
+      throw new Error("Can't delete item");
+    });
+
+    try {
+      await service.deleteItem(
+        '5e9f9c9f9c9f9c9f9c9f9c9',
+        '4e0a0d0a0d0a0d0a0d0a0d0',
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(DeleteItemFailError);
+      expect(e.message).toBe('Fail to Delete item: Item delete fail');
+    }
   });
 });
