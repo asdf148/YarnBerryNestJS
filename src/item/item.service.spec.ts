@@ -277,7 +277,7 @@ describe('ItemService: DeleteItem', () => {
       );
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
-      expect(e.message).toBe('Fail to Delete item: User not found');
+      expect(e.message).toBe('Fail to delete item: User not found');
     }
   });
 
@@ -295,7 +295,7 @@ describe('ItemService: DeleteItem', () => {
       );
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
-      expect(e.message).toBe('Fail to Delete item: Item not found');
+      expect(e.message).toBe('Fail to delete item: Item not found');
     }
   });
 
@@ -315,7 +315,7 @@ describe('ItemService: DeleteItem', () => {
       );
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
-      expect(e.message).toBe('Fail to Delete item: No permission');
+      expect(e.message).toBe('Fail to delete item: No permission');
     }
   });
 
@@ -335,7 +335,7 @@ describe('ItemService: DeleteItem', () => {
       );
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
-      expect(e.message).toBe('Fail to Delete item: Item delete fail');
+      expect(e.message).toBe('Fail to delete item: Item delete fail');
     }
   });
 });
