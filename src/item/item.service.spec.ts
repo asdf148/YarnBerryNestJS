@@ -38,6 +38,48 @@ async function injectDependence() {
   authRepository = module.get<AuthRepository>(AuthRepository);
 }
 
+describe('ItemService: GetItems', () => {
+  let initItems: Item[];
+
+  beforeAll(async () => {
+    const foundItem = new Item(
+      '서울시 서초구 서초동',
+      null,
+      'ㅇㅇ카페',
+      4.0,
+      '이 카페는 좋은 카페입니다.',
+      '카페',
+      {
+        _id: '5e9f9c9f9c9f9c9f9c9f9c9',
+        name: '안녕안녕',
+      },
+    );
+    foundItem._id = '4e0a0d0a0d0a0d0a0d0a0d0';
+
+    initItems = [foundItem, foundItem];
+  });
+
+  beforeEach(async () => {
+    await injectDependence();
+  });
+
+  it('Get Items 성공', async () => {
+    jest.spyOn(repository, 'findAll').mockResolvedValue(initItems);
+
+    const result = await service.getItems();
+    expect(result).toBe(initItems);
+  });
+
+  it('Get Items 실패 (Items 가져오기 실패)', async () => {
+    jest
+      .spyOn(repository, 'findAll')
+      .mockRejectedValue(new Error('Fail to get items: fail to load items'));
+
+    const result = await service.getItems();
+    expect(result).toBe(initItems);
+  });
+});
+
 describe('ItemService: CreateItem', () => {
   let initCreateItem: CreateOrModifyItem;
   let initSavedItem: Item;
@@ -223,8 +265,8 @@ describe('ItemService: DeleteItem', () => {
     const foundUser = new Auth(null, '안녕안녕', 'asdf@asdf.com', null, []);
     foundUser._id = '5e9f9c9f9c9f9c9f9c9f9c9';
 
-    const differenUser = new Auth(null, '하이하이', 'zxcv@zxcv.com', null, []);
-    differenUser._id = '1a2x2s2x2s2x2s2x2s2x2s2';
+    const differentUser = new Auth(null, '하이하이', 'zxcv@zxcv.com', null, []);
+    differentUser._id = '1a2x2s2x2s2x2s2x2s2x2s2';
 
     const item = new Item(
       '서울시 서초구 서초동',
@@ -244,7 +286,7 @@ describe('ItemService: DeleteItem', () => {
 
     initFoundUser = foundUser;
     initFoundItem = item;
-    initDifferentUser = differenUser;
+    initDifferentUser = differentUser;
   });
 
   beforeEach(async () => {
