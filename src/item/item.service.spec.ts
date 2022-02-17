@@ -16,6 +16,20 @@ let service: ItemService;
 let repository: ItemRepository;
 let authRepository: AuthRepository;
 
+const foundItem = new Item(
+  '서울시 서초구 서초동',
+  null,
+  'ㅇㅇ카페',
+  4.0,
+  '이 카페는 좋은 카페입니다.',
+  '카페',
+  {
+    _id: '5e9f9c9f9c9f9c9f9c9f9c9',
+    name: '안녕안녕',
+  },
+);
+foundItem._id = '4e0a0d0a0d0a0d0a0d0a0d0';
+
 async function injectDependence() {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
@@ -41,25 +55,7 @@ async function injectDependence() {
 }
 
 describe('ItemService: GetItems', () => {
-  let initItems: Item[];
-
-  beforeAll(async () => {
-    const foundItem = new Item(
-      '서울시 서초구 서초동',
-      null,
-      'ㅇㅇ카페',
-      4.0,
-      '이 카페는 좋은 카페입니다.',
-      '카페',
-      {
-        _id: '5e9f9c9f9c9f9c9f9c9f9c9',
-        name: '안녕안녕',
-      },
-    );
-    foundItem._id = '4e0a0d0a0d0a0d0a0d0a0d0';
-
-    initItems = [foundItem, foundItem];
-  });
+  const initItems: Item[] = [foundItem, foundItem];
 
   beforeEach(async () => {
     await injectDependence();
@@ -169,25 +165,11 @@ describe('ItemService: CreateItem', () => {
 });
 
 describe('ItemService: ModifyItem', () => {
-  let initFoundItem: Item;
+  const initFoundItem: Item = foundItem;
   let initModifyItem: CreateOrModifyItem;
   let initModifySavedItem: Item;
 
   beforeAll(() => {
-    const foundItem = new Item(
-      '서울시 서초구 서초동',
-      null,
-      'ㅇㅇ카페',
-      4.0,
-      '이 카페는 좋은 카페입니다.',
-      '카페',
-      {
-        _id: '5e9f9c9f9c9f9c9f9c9f9c9',
-        name: '안녕안녕',
-      },
-    );
-    foundItem._id = '4e0a0d0a0d0a0d0a0d0a0d0';
-
     const modifyItem = new CreateOrModifyItem(
       '서울특별시 마포구 ㅇㅇ로',
       'ㅇㅇ포차',
@@ -207,7 +189,6 @@ describe('ItemService: ModifyItem', () => {
     modifySavedItem._id = foundItem._id;
     modifySavedItem.writer = foundItem.writer;
 
-    initFoundItem = foundItem;
     initModifyItem = modifyItem;
     initModifySavedItem = modifySavedItem;
   });
@@ -221,11 +202,7 @@ describe('ItemService: ModifyItem', () => {
 
     jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
 
-    const result: string = await service.modifyItem(
-      '4e0a0d0a0d0a0d0a0d0a0d0',
-      initModifyItem,
-      undefined,
-    );
+    const result: string = await executModifyItem(initModifyItem);
     expect(result).toBe('Modify Item Success');
   });
 
@@ -235,11 +212,7 @@ describe('ItemService: ModifyItem', () => {
     });
 
     try {
-      await service.modifyItem(
-        '4e0a0d0a0d0a0d0a0d0a0d0',
-        initModifyItem,
-        undefined,
-      );
+      await executModifyItem(initModifyItem);
     } catch (e) {
       expect(e).toBeInstanceOf(ModifyItemFail);
       expect(e.message).toBe('Fail to modify item: Item not found');
@@ -252,11 +225,7 @@ describe('ItemService: ModifyItem', () => {
     jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
 
     try {
-      await service.modifyItem(
-        '4e0a0d0a0d0a0d0a0d0a0d0',
-        initModifyItem,
-        undefined,
-      );
+      await executModifyItem(initModifyItem);
     } catch (e) {
       expect(e).toBeInstanceOf(ModifyItemFail);
       expect(e.message).toBe('Fail to modify item: Item save fail');
@@ -264,9 +233,19 @@ describe('ItemService: ModifyItem', () => {
   });
 });
 
+async function executModifyItem(
+  initModifyItem: CreateOrModifyItem,
+): Promise<string> {
+  return await service.modifyItem(
+    '4e0a0d0a0d0a0d0a0d0a0d0',
+    initModifyItem,
+    undefined,
+  );
+}
+
 describe('ItemService: DeleteItem', () => {
   let initFoundUser: Auth;
-  let initFoundItem: Item;
+  const initFoundItem: Item = foundItem;
   let initDifferentUser: Auth;
 
   beforeAll(() => {
@@ -276,24 +255,9 @@ describe('ItemService: DeleteItem', () => {
     const differentUser = new Auth(null, '하이하이', 'zxcv@zxcv.com', null, []);
     differentUser._id = '1a2x2s2x2s2x2s2x2s2x2s2';
 
-    const item = new Item(
-      '서울시 서초구 서초동',
-      null,
-      'ㅇㅇ카페',
-      4.0,
-      '이 카페는 좋은 카페입니다.',
-      '카페',
-      {
-        _id: '5e9f9c9f9c9f9c9f9c9f9c9',
-        name: '안녕안녕',
-      },
-    );
-    item._id = '4e0a0d0a0d0a0d0a0d0a0d0';
-
-    foundUser.items.push(item);
+    foundUser.items.push(foundItem);
 
     initFoundUser = foundUser;
-    initFoundItem = item;
     initDifferentUser = differentUser;
   });
 
@@ -308,10 +272,7 @@ describe('ItemService: DeleteItem', () => {
 
     jest.spyOn(repository, 'delete').mockResolvedValue(new Item());
 
-    const result = await service.deleteItem(
-      '5e9f9c9f9c9f9c9f9c9f9c9',
-      '4e0a0d0a0d0a0d0a0d0a0d0',
-    );
+    const result = await executDeleteItem();
     expect(result).toBe('Delete Item Success');
   });
 
@@ -321,10 +282,7 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await service.deleteItem(
-        '5e9f9c9f9c9f9c9f9c9f9c9',
-        '4e0a0d0a0d0a0d0a0d0a0d0',
-      );
+      await executDeleteItem();
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: User not found');
@@ -339,10 +297,7 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await service.deleteItem(
-        '5e9f9c9f9c9f9c9f9c9f9c9',
-        '4e0a0d0a0d0a0d0a0d0a0d0',
-      );
+      await executDeleteItem();
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: Item not found');
@@ -359,10 +314,7 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await service.deleteItem(
-        '1a2x2s2x2s2x2s2x2s2x2s2',
-        '4e0a0d0a0d0a0d0a0d0a0d0',
-      );
+      await executDeleteItem('1a2x2s2x2s2x2s2x2s2x2s2');
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: No permission');
@@ -379,13 +331,16 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await service.deleteItem(
-        '5e9f9c9f9c9f9c9f9c9f9c9',
-        '4e0a0d0a0d0a0d0a0d0a0d0',
-      );
+      await executDeleteItem();
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: Item delete fail');
     }
   });
+
+  async function executDeleteItem(
+    userId = '5e9f9c9f9c9f9c9f9c9f9c9',
+  ): Promise<string> {
+    return await service.deleteItem(userId, '4e0a0d0a0d0a0d0a0d0a0d0');
+  }
 });
