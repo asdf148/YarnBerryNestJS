@@ -8,6 +8,8 @@ import { Auth } from '../auth/entity/auth.entity';
 import { ModifyItemFail } from '../dto/error/modifyItemFailError';
 import { Item } from './entity/item.entity';
 import { DeleteItemFailError } from './dto/error/deleteItemFailError';
+import { ItemsDTO } from './dto/items.dto';
+import { GetItemsFailError } from './dto/error/getItemsFailError';
 
 @Injectable()
 export class ItemService {
@@ -16,6 +18,16 @@ export class ItemService {
     private readonly itemRepository: ItemRepository,
   ) {}
   itemDTOConversion = new ItemDTOConversion();
+
+  async getItems(): Promise<ItemsDTO> {
+    const items: ItemsDTO = new ItemsDTO();
+    try {
+      items.items = (await this.itemRepository.findAll()) ?? [];
+      return items;
+    } catch (e) {
+      throw new GetItemsFailError('Fail to get items: Fail to load items');
+    }
+  }
 
   async createItem(
     userId: string,
