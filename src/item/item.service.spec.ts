@@ -328,7 +328,7 @@ describe('ItemService: DeleteItem', () => {
     }
   });
 
-  it('Delete Item 실패 (존재하지 않는 Item)', async () => {
+  it('Delete Item 실패 (권한 없음)', async () => {
     jest.spyOn(authRepository, 'findOne').mockResolvedValue(initDifferentUser);
 
     jest.spyOn(repository, 'findOne').mockResolvedValue(initFoundItem);
