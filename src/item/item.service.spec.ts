@@ -9,7 +9,6 @@ import { ItemRepository } from './entity/item.repository';
 import { ItemService } from './item.service';
 import { ModifyItemFail } from '../dto/error/modifyItemFailError';
 import { DeleteItemFailError } from './dto/error/deleteItemFailError';
-import { ItemsDTO } from './dto/items.dto';
 import { GetItemsFailError } from './dto/error/getItemsFailError';
 import { GetItemFailError } from './dto/error/getItemFailError';
 
@@ -60,7 +59,7 @@ describe('ItemService: GetItem', () => {
     await injectDependence();
   });
 
-  it('Get Items 성공', async () => {
+  it('Get Item 성공', async () => {
     jest.spyOn(repository, 'findOne').mockResolvedValue(foundItem);
 
     const result = await service.getItem('4e0a0d0a0d0a0d0a0d0a0d0');
@@ -70,13 +69,13 @@ describe('ItemService: GetItem', () => {
   it('Get Item 실패 (존재하지 않는 아이템)', async () => {
     jest
       .spyOn(repository, 'findOne')
-      .mockRejectedValue(new Error('Fail to load item'));
+      .mockRejectedValue(new Error('Item not found'));
 
     try {
       await service.getItem('4e0a0d0a0d0a0d0a0d0a0d0');
     } catch (e) {
       expect(e).toBeInstanceOf(GetItemFailError);
-      expect(e.message).toBe('Fail to get items: Fail to load item');
+      expect(e.message).toBe('Fail to get item: Item not found');
     }
   });
 });
@@ -89,12 +88,10 @@ describe('ItemService: GetItems', () => {
   });
 
   it('Get Items 성공', async () => {
-    const items: ItemsDTO = new ItemsDTO();
-    items.items = initItems;
     jest.spyOn(repository, 'findAll').mockResolvedValue(initItems);
 
     const result = await service.getItems();
-    expect(result).toStrictEqual(items);
+    expect(result).toBe(initItems);
   });
 
   it('Get Items 실패 (Items 가져오기 실패)', async () => {

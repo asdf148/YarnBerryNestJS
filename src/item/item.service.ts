@@ -9,6 +9,7 @@ import { ModifyItemFail } from '../dto/error/modifyItemFailError';
 import { Item } from './entity/item.entity';
 import { DeleteItemFailError } from './dto/error/deleteItemFailError';
 import { GetItemsFailError } from './dto/error/getItemsFailError';
+import { GetItemFailError } from './dto/error/getItemFailError';
 
 @Injectable()
 export class ItemService {
@@ -22,7 +23,7 @@ export class ItemService {
     try {
       return await this.itemRepository.findOne(itemId);
     } catch (e) {
-      throw new GetItemsFailError('Fail to get item: Item not found');
+      throw new GetItemFailError('Fail to get item: Item not found');
     }
   }
 
