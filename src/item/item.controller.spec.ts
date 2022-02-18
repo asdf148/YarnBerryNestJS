@@ -3,13 +3,13 @@ import { Item } from './entity/item.entity';
 import { ItemController } from './item.controller';
 import { ItemService } from './item.service';
 import { Response } from 'express';
-import { SuccessResponseDTO } from 'src/dto/successResponse.dto';
-import { FailResponseDTO } from 'src/dto/failResponse.dto';
+import { SuccessResponseDTO } from '../dto/successResponse.dto';
+import { FailResponseDTO } from '../dto/failResponse.dto';
 import { GetItemFailError } from './dto/error/getItemFailError';
 import { GetItemsFailError } from './dto/error/getItemsFailError';
 import { CreateOrModifyItem } from './dto/createOrModifyItem.dto';
-import { CreateItemFail } from 'src/dto/error/createItemFailError';
-import { ModifyItemFail } from 'src/dto/error/modifyItemFailError';
+import { CreateItemFail } from '../dto/error/createItemFailError';
+import { ModifyItemFail } from '../dto/error/modifyItemFailError';
 import { DeleteItemFailError } from './dto/error/deleteItemFailError';
 
 let controller: ItemController;
@@ -87,7 +87,7 @@ describe('ItemController: Get Item', () => {
     jest.spyOn(service, 'getItem').mockResolvedValue(item);
 
     const result = await executGetItem();
-    expect(result).toEqual(getItemSuccessResponse);
+    expect(result.send).toStrictEqual(getItemSuccessResponse);
   });
 
   it('GetItem 실패', async () => {
@@ -101,10 +101,10 @@ describe('ItemController: Get Item', () => {
     });
 
     const result = await executGetItem();
-    expect(result).toEqual(getItemFailResponse);
+    expect(result.send).toStrictEqual(getItemFailResponse);
   });
 
-  async function executGetItem(): Promise<Item> {
+  async function executGetItem(): Promise<Response<any, Record<string, any>>> {
     return await controller.getItem('4e0a0d0a0d0a0d0a0d0a0d1', responseMock);
   }
 });
@@ -124,7 +124,7 @@ describe('ItemController: Get Items', () => {
     jest.spyOn(service, 'getItems').mockResolvedValue([item]);
 
     const result = await controller.getItems(responseMock);
-    expect(result).toEqual(getItemsSuccessResponse);
+    expect(result.send).toStrictEqual(getItemsSuccessResponse);
   });
 
   it('GetItems 실패', async () => {
@@ -138,7 +138,7 @@ describe('ItemController: Get Items', () => {
     });
 
     const result = await controller.getItems(responseMock);
-    expect(result).toEqual(getItemsFailResponse);
+    expect(result.send).toStrictEqual(getItemsFailResponse);
   });
 });
 
@@ -170,7 +170,7 @@ describe('ItemController: Create Item', () => {
     jest.spyOn(service, 'createItem').mockResolvedValue('Create Item Success');
 
     const result = await executCreateItem();
-    expect(result).toEqual(createItemSuccessResponse);
+    expect(result.send).toStrictEqual(createItemSuccessResponse);
   });
 
   it('CreateItem 실패 (가입되지 않은 유저)', async () => {
@@ -184,7 +184,7 @@ describe('ItemController: Create Item', () => {
     });
 
     const result = await executCreateItem();
-    expect(result).toEqual(createItemFailResponse);
+    expect(result.send).toStrictEqual(createItemFailResponse);
   });
 
   it('Create Item 실패 (Item 저장 실패)', async () => {
@@ -198,10 +198,12 @@ describe('ItemController: Create Item', () => {
     });
 
     const result = await executCreateItem();
-    expect(result).toEqual(createItemFailResponse);
+    expect(result.send).toStrictEqual(createItemFailResponse);
   });
 
-  async function executCreateItem(): Promise<string> {
+  async function executCreateItem(): Promise<
+    Response<any, Record<string, any>>
+  > {
     return await controller.createItem(
       null,
       '5e9f9c9f9c9f9c9f9c9f9c9',
@@ -239,7 +241,7 @@ describe('ItemController: Modify Item', () => {
     jest.spyOn(service, 'modifyItem').mockResolvedValue('Modify Item Success');
 
     const result = await executModifyItem();
-    expect(result).toEqual(modifyItemSuccessResponse);
+    expect(result.send).toStrictEqual(modifyItemSuccessResponse);
   });
 
   it('Modify Item 실패 (존재하지 않는 Item)', async () => {
@@ -253,7 +255,7 @@ describe('ItemController: Modify Item', () => {
     });
 
     const result = await executModifyItem();
-    expect(result).toEqual(modifyItemFailResponse);
+    expect(result.send).toStrictEqual(modifyItemFailResponse);
   });
 
   it('Modify Item 실패 (Item 저장 실패)', async () => {
@@ -267,14 +269,16 @@ describe('ItemController: Modify Item', () => {
     });
 
     const result = await executModifyItem();
-    expect(result).toEqual(modifyItemFailResponse);
+    expect(result.send).toStrictEqual(modifyItemFailResponse);
   });
 
-  async function executModifyItem(): Promise<string> {
+  async function executModifyItem(): Promise<
+    Response<any, Record<string, any>>
+  > {
     return await controller.modifyItem(
+      null,
       item._id,
       initModifyItem,
-      null,
       responseMock,
     );
   }
@@ -294,7 +298,7 @@ describe('ItemController: Delete Item', () => {
     jest.spyOn(service, 'deleteItem').mockResolvedValue('Delete Item Success');
 
     const result = await executDeleteItem();
-    expect(result).toEqual(deleteItemSuccessResponse);
+    expect(result.send).toStrictEqual(deleteItemSuccessResponse);
   });
 
   it('Delete Item 실패 (존재하지 않는 Item)', async () => {
@@ -308,7 +312,7 @@ describe('ItemController: Delete Item', () => {
     });
 
     const result = await executDeleteItem();
-    expect(result).toEqual(deleteItemFailResponse);
+    expect(result.send).toStrictEqual(deleteItemFailResponse);
   });
 
   it('Delete Item 실패 (Item 삭제 실패)', async () => {
@@ -322,10 +326,16 @@ describe('ItemController: Delete Item', () => {
     });
 
     const result = await executDeleteItem();
-    expect(result).toEqual(deleteItemFailResponse);
+    expect(result.send).toStrictEqual(deleteItemFailResponse);
   });
 
-  async function executDeleteItem(): Promise<string> {
-    return await controller.deleteItem(item._id, responseMock);
+  async function executDeleteItem(): Promise<
+    Response<any, Record<string, any>>
+  > {
+    return await controller.deleteItem(
+      '5e9f9c9f9c9f9c9f9c9f9c9',
+      item._id,
+      responseMock,
+    );
   }
 });
