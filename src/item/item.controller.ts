@@ -13,6 +13,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { FailResponseDTO } from '../dto/failResponse.dto';
 import { SuccessResponseDTO } from '../dto/successResponse.dto';
@@ -26,6 +32,18 @@ export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
   @Get('/')
+  @ApiOperation({
+    summary: '게시글 리스트 가져오기',
+    description: '아이템 전부 찾기',
+  })
+  @ApiOkResponse({
+    description: '아이템 전부 찾기 성공',
+    type: SuccessResponseDTO,
+  })
+  @ApiBadRequestResponse({
+    description: '아이템 전부 찾기 실패',
+    type: FailResponseDTO,
+  })
   async getItems(
     @Res() res: Response,
   ): Promise<Response<any, Record<string, any>>> {
@@ -48,6 +66,18 @@ export class ItemController {
   }
 
   @Get('detail/:itemId')
+  @ApiOperation({
+    summary: '게시글 하나 가져오기',
+    description: '아이템 하나 찾기',
+  })
+  @ApiOkResponse({
+    description: '아이템 하나 찾기 성공',
+    type: SuccessResponseDTO,
+  })
+  @ApiBadRequestResponse({
+    description: '아이템 하나 찾기 실패',
+    type: FailResponseDTO,
+  })
   async getItem(
     @Param('itemId') itemId: string,
     @Res() res: Response,
@@ -73,6 +103,18 @@ export class ItemController {
   }
 
   @Post('create/:userId')
+  @ApiOperation({
+    summary: '게시글 작성',
+    description: '아이템 생성',
+  })
+  @ApiCreatedResponse({
+    description: '아이템 생성 성공',
+    type: SuccessResponseDTO,
+  })
+  @ApiBadRequestResponse({
+    description: '아이템 생성 실패',
+    type: FailResponseDTO,
+  })
   @UseInterceptors(FileInterceptor('file', multerDiskOptions))
   async createItem(
     @UploadedFile() img: Express.Multer.File,
@@ -102,6 +144,18 @@ export class ItemController {
   }
 
   @Put('modify/:itemId')
+  @ApiOperation({
+    summary: '게시글 수정',
+    description: '아이템 수정',
+  })
+  @ApiCreatedResponse({
+    description: '아이템 수정 성공',
+    type: SuccessResponseDTO,
+  })
+  @ApiBadRequestResponse({
+    description: '아이템 수정 실패',
+    type: FailResponseDTO,
+  })
   @UseInterceptors(FileInterceptor('file', multerDiskOptions))
   async modifyItem(
     @UploadedFile() img: Express.Multer.File,
@@ -131,6 +185,18 @@ export class ItemController {
   }
 
   @Delete('delete?')
+  @ApiOperation({
+    summary: '게시글 삭제',
+    description: '아이템 삭제',
+  })
+  @ApiCreatedResponse({
+    description: '아이템 삭제 성공',
+    type: SuccessResponseDTO,
+  })
+  @ApiBadRequestResponse({
+    description: '아이템 삭제 실패',
+    type: FailResponseDTO,
+  })
   async deleteItem(
     @Query('userId') userId: string,
     @Query('itemId') itemId: string,
