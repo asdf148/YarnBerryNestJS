@@ -226,7 +226,7 @@ describe('ItemService: ModifyItem', () => {
 
     jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
 
-    const result: string = await executModifyItem(initModifyItem);
+    const result: string = await executeModifyItem(initModifyItem);
     expect(result).toBe('Modify Item Success');
   });
 
@@ -236,7 +236,7 @@ describe('ItemService: ModifyItem', () => {
     });
 
     try {
-      await executModifyItem(initModifyItem);
+      await executeModifyItem(initModifyItem);
     } catch (e) {
       expect(e).toBeInstanceOf(ModifyItemFail);
       expect(e.message).toBe('Fail to modify item: Item not found');
@@ -249,7 +249,7 @@ describe('ItemService: ModifyItem', () => {
     jest.spyOn(repository, 'update').mockResolvedValue(initModifySavedItem);
 
     try {
-      await executModifyItem(initModifyItem);
+      await executeModifyItem(initModifyItem);
     } catch (e) {
       expect(e).toBeInstanceOf(ModifyItemFail);
       expect(e.message).toBe('Fail to modify item: Item save fail');
@@ -257,7 +257,7 @@ describe('ItemService: ModifyItem', () => {
   });
 });
 
-async function executModifyItem(
+async function executeModifyItem(
   initModifyItem: CreateOrModifyItem,
 ): Promise<string> {
   return await service.modifyItem(
@@ -296,7 +296,7 @@ describe('ItemService: DeleteItem', () => {
 
     jest.spyOn(repository, 'delete').mockResolvedValue(new Item());
 
-    const result = await executDeleteItem();
+    const result = await executeDeleteItem();
     expect(result).toBe('Delete Item Success');
   });
 
@@ -306,7 +306,7 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await executDeleteItem();
+      await executeDeleteItem();
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: User not found');
@@ -321,7 +321,7 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await executDeleteItem();
+      await executeDeleteItem();
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: Item not found');
@@ -338,7 +338,7 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await executDeleteItem('1a2x2s2x2s2x2s2x2s2x2s2');
+      await executeDeleteItem('1a2x2s2x2s2x2s2x2s2x2s2');
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: No permission');
@@ -355,14 +355,14 @@ describe('ItemService: DeleteItem', () => {
     });
 
     try {
-      await executDeleteItem();
+      await executeDeleteItem();
     } catch (e) {
       expect(e).toBeInstanceOf(DeleteItemFailError);
       expect(e.message).toBe('Fail to delete item: Item delete fail');
     }
   });
 
-  async function executDeleteItem(
+  async function executeDeleteItem(
     userId = '5e9f9c9f9c9f9c9f9c9f9c9',
   ): Promise<string> {
     return await service.deleteItem(userId, '4e0a0d0a0d0a0d0a0d0a0d0');

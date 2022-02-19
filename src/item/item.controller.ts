@@ -18,6 +18,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { FailResponseDTO } from '../dto/failResponse.dto';
@@ -28,6 +29,7 @@ import { Item } from './entity/item.entity';
 import { ItemService } from './item.service';
 
 @Controller('item')
+@ApiTags('게시글 API')
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
