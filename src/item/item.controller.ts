@@ -102,7 +102,7 @@ export class ItemController {
     }
   }
 
-  @Post('create/:userId')
+  @Post('/:userId')
   @ApiOperation({
     summary: '게시글 작성',
     description: '아이템 생성',
@@ -143,7 +143,7 @@ export class ItemController {
     }
   }
 
-  @Put('modify/:itemId')
+  @Put('/:itemId')
   @ApiOperation({
     summary: '게시글 수정',
     description: '아이템 수정',
@@ -184,7 +184,7 @@ export class ItemController {
     }
   }
 
-  @Delete('delete?')
+  @Delete('/?')
   @ApiOperation({
     summary: '게시글 삭제',
     description: '아이템 삭제',
