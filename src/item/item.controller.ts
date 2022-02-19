@@ -52,7 +52,12 @@ export class ItemController {
     try {
       const result: Item[] = await this.itemService.getItems();
 
-      return this.createSuccessResponse(res, 'GetItems Success', null, result);
+      return this.createSuccessResponse<Item[]>(
+        res,
+        'GetItems Success',
+        null,
+        result,
+      );
     } catch (e) {
       return this.createFailResponse('GetItems Fail', e.message, res);
     }
@@ -78,7 +83,12 @@ export class ItemController {
     try {
       const result: Item = await this.itemService.getItem(itemId);
 
-      return this.createSuccessResponse(res, 'GetItem Success', null, result);
+      return this.createSuccessResponse<Item>(
+        res,
+        'GetItem Success',
+        null,
+        result,
+      );
     } catch (e) {
       return this.createFailResponse('GetItem Fail', e.message, res);
     }
@@ -147,7 +157,7 @@ export class ItemController {
         img,
       );
 
-      return this.createSuccessResponse(
+      return this.createSuccessResponse<string>(
         res,
         'ModifyItem Success',
         result,
@@ -179,7 +189,7 @@ export class ItemController {
     try {
       const result: string = await this.itemService.deleteItem(userId, itemId);
 
-      return this.createSuccessResponse(
+      return this.createSuccessResponse<string>(
         res,
         'DeleteItem Success',
         result,
