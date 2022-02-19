@@ -21,6 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
+import { CustomController } from 'src/global/customController';
 import { FailResponseDTO } from '../dto/failResponse.dto';
 import { SuccessResponseDTO } from '../dto/successResponse.dto';
 import { multerDiskOptions } from '../global/multer.options';
@@ -30,8 +31,10 @@ import { ItemService } from './item.service';
 
 @Controller('item')
 @ApiTags('게시글 API')
-export class ItemController {
-  constructor(private readonly itemService: ItemService) {}
+export class ItemController extends CustomController {
+  constructor(private readonly itemService: ItemService) {
+    super();
+  }
 
   @Get('/')
   @ApiOperation({
@@ -59,7 +62,11 @@ export class ItemController {
         result,
       );
     } catch (e) {
-      return this.createFailResponse('GetItems Fail', e.message, res);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'GetItems Fail',
+        e.message,
+      );
     }
   }
 
@@ -90,7 +97,11 @@ export class ItemController {
         result,
       );
     } catch (e) {
-      return this.createFailResponse('GetItem Fail', e.message, res);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'GetItem Fail',
+        e.message,
+      );
     }
   }
 
@@ -126,7 +137,11 @@ export class ItemController {
 
       return res.status(HttpStatus.CREATED).json(response);
     } catch (e) {
-      return this.createFailResponse('CreateItem Fail', e.message, res);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'CreateItem Fail',
+        e.message,
+      );
     }
   }
 
@@ -164,7 +179,11 @@ export class ItemController {
         null,
       );
     } catch (e) {
-      return this.createFailResponse('ModifyItem Fail', e.message, res);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'ModifyItem Fail',
+        e.message,
+      );
     }
   }
 
@@ -196,7 +215,11 @@ export class ItemController {
         null,
       );
     } catch (e) {
-      return this.createFailResponse('DeleteItem Fail', e.message, res);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'DeleteItem Fail',
+        e.message,
+      );
     }
   }
 
@@ -213,18 +236,5 @@ export class ItemController {
     );
 
     return res.status(HttpStatus.OK).json(response);
-  }
-
-  private createFailResponse(
-    errorStatus: string,
-    errorMessage: string,
-    res: Response,
-  ): Response<any, Record<string, any>> {
-    const response: FailResponseDTO = new FailResponseDTO(
-      errorStatus,
-      errorMessage,
-    );
-
-    return res.status(HttpStatus.BAD_REQUEST).json(response);
   }
 }

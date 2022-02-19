@@ -22,11 +22,14 @@ import { Auth } from './entity/auth.entity';
 import { FailResponseDTO } from '../dto/failResponse.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerDiskOptions } from '../global/multer.options';
+import { CustomController } from 'src/global/customController';
 
 @Controller('auth')
 @ApiTags('계정 API')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+export class AuthController extends CustomController {
+  constructor(private readonly authService: AuthService) {
+    super();
+  }
 
   @Post('signUp')
   @ApiOperation({ summary: '회원가입 API', description: '유저 생성' })
@@ -51,7 +54,11 @@ export class AuthController {
         savedAuth.email,
       );
     } catch (e) {
-      return this.ReturnFailResponse(res, 'SignUp Fail', e.message);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'SignUp Fail',
+        e.message,
+      );
     }
   }
 
@@ -73,7 +80,11 @@ export class AuthController {
         token,
       );
     } catch (e) {
-      return this.ReturnFailResponse(res, 'Login Fail', e.message);
+      return this.returnBadRequestResponseWithJSON(
+        res,
+        'Login Fail',
+        e.message,
+      );
     }
   }
 
@@ -90,18 +101,5 @@ export class AuthController {
     );
 
     return res.status(HttpStatus.CREATED).json(successResponse);
-  }
-
-  ReturnFailResponse(
-    res: Response,
-    state?: string,
-    message?: string,
-  ): Response<any, Record<string, any>> {
-    const failResponse: FailResponseDTO = new FailResponseDTO(
-      state ?? null,
-      message ?? null,
-    );
-
-    return res.status(HttpStatus.BAD_REQUEST).json(failResponse);
   }
 }
