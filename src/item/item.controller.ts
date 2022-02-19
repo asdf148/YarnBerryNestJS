@@ -52,18 +52,9 @@ export class ItemController {
     try {
       const result: Item[] = await this.itemService.getItems();
 
-      const response: SuccessResponseDTO<Item[]> = new SuccessResponseDTO<
-        Item[]
-      >('GetItems Success', null, result);
-
-      return res.status(HttpStatus.OK).json(response);
+      return this.createSuccessResponse(res, 'GetItems Success', null, result);
     } catch (e) {
-      const response: FailResponseDTO = new FailResponseDTO(
-        'GetItems Fail',
-        e.message,
-      );
-
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
+      return this.createFailResponse('GetItems Fail', e.message, res);
     }
   }
 
@@ -87,20 +78,9 @@ export class ItemController {
     try {
       const result: Item = await this.itemService.getItem(itemId);
 
-      const response: SuccessResponseDTO<Item> = new SuccessResponseDTO<Item>(
-        'GetItem Success',
-        null,
-        result,
-      );
-
-      return res.status(HttpStatus.OK).json(response);
+      return this.createSuccessResponse(res, 'GetItem Success', null, result);
     } catch (e) {
-      const response: FailResponseDTO = new FailResponseDTO(
-        'GetItem Fail',
-        e.message,
-      );
-
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
+      return this.createFailResponse('GetItem Fail', e.message, res);
     }
   }
 
@@ -136,12 +116,7 @@ export class ItemController {
 
       return res.status(HttpStatus.CREATED).json(response);
     } catch (e) {
-      const response: FailResponseDTO = new FailResponseDTO(
-        'CreateItem Fail',
-        e.message,
-      );
-
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
+      return this.createFailResponse('CreateItem Fail', e.message, res);
     }
   }
 
@@ -172,17 +147,14 @@ export class ItemController {
         img,
       );
 
-      const response: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('ModifyItem Success', result);
-
-      return res.status(HttpStatus.OK).json(response);
-    } catch (e) {
-      const response: FailResponseDTO = new FailResponseDTO(
-        'ModifyItem Fail',
-        e.message,
+      return this.createSuccessResponse(
+        res,
+        'ModifyItem Success',
+        result,
+        null,
       );
-
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
+    } catch (e) {
+      return this.createFailResponse('ModifyItem Fail', e.message, res);
     }
   }
 
@@ -207,17 +179,42 @@ export class ItemController {
     try {
       const result: string = await this.itemService.deleteItem(userId, itemId);
 
-      const response: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('DeleteItem Success', result);
-
-      return res.status(HttpStatus.OK).json(response);
-    } catch (e) {
-      const response: FailResponseDTO = new FailResponseDTO(
-        'DeleteItem Fail',
-        e.message,
+      return this.createSuccessResponse(
+        res,
+        'DeleteItem Success',
+        result,
+        null,
       );
-
-      return res.status(HttpStatus.BAD_REQUEST).json(response);
+    } catch (e) {
+      return this.createFailResponse('DeleteItem Fail', e.message, res);
     }
+  }
+
+  private createSuccessResponse<T>(
+    res: Response,
+    status: string,
+    message?: string,
+    data?: T,
+  ) {
+    const response: SuccessResponseDTO<T> = new SuccessResponseDTO<T>(
+      status,
+      message,
+      data,
+    );
+
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  private createFailResponse(
+    errorStatus: string,
+    errorMessage: string,
+    res: Response,
+  ): Response<any, Record<string, any>> {
+    const response: FailResponseDTO = new FailResponseDTO(
+      errorStatus,
+      errorMessage,
+    );
+
+    return res.status(HttpStatus.BAD_REQUEST).json(response);
   }
 }
