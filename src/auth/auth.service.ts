@@ -22,18 +22,12 @@ export class AuthService {
   ): Promise<Auth> {
     this.createAuthValidation(createAuth);
 
-    const savedAuth: Auth = new Auth(
-      typeof img == 'undefined' ? null : img.filename,
-      createAuth.name,
-      createAuth.email,
-      await hash(createAuth.password, 10),
-      null,
-    );
+    const savedAuth: Auth = await this.createAuthToAuth(createAuth, img);
 
     return await this.authRepository.save(savedAuth);
   }
 
-  createAuthValidation(createAuth: CreateAuthDTO): void {
+  private createAuthValidation(createAuth: CreateAuthDTO): void {
     try {
       this.isNameNull(createAuth.name);
       this.isEmailNull(createAuth.email);
@@ -45,25 +39,38 @@ export class AuthService {
     return;
   }
 
-  isNameNull(name: string): void {
+  private isNameNull(name: string): void {
     if (name === null) {
       throw 'name';
     }
     return;
   }
 
-  isEmailNull(email: string): void {
+  private isEmailNull(email: string): void {
     if (email === null) {
       throw 'email';
     }
     return;
   }
 
-  isPasswordNull(password: string): void {
+  private isPasswordNull(password: string): void {
     if (password === null) {
       throw 'password';
     }
     return;
+  }
+
+  private async createAuthToAuth(
+    createAuth: CreateAuthDTO,
+    img: Express.Multer.File,
+  ): Promise<Auth> {
+    return new Auth(
+      typeof img == 'undefined' ? null : img.filename,
+      createAuth.name,
+      createAuth.email,
+      await hash(createAuth.password, 10),
+      null,
+    );
   }
 
   // 로그인
@@ -73,24 +80,20 @@ export class AuthService {
     );
 
     if (await this.isExistAndIsPasswordMatch(foundAuth, loginDTO)) {
-      return this.jwtService.sign(
-        {
-          email: foundAuth.email,
-        },
-        {
-          expiresIn: '1d',
-        },
-      );
+      return this.signToken(foundAuth.email);
     } else {
       throw new LoginFailError('로그인 실패');
     }
   }
 
-  // 찾은 계정이 존재하는지, 비밀번호가 일치하는지 확인
-  async isExistAndIsPasswordMatch(
+  private async isExistAndIsPasswordMatch(
     foundAuth: Auth,
     loginDTO: LoginDTO,
   ): Promise<boolean> {
     return foundAuth && (await compare(loginDTO.password, foundAuth.password));
+  }
+
+  private signToken(email: string): string {
+    return this.jwtService.sign({ email: email }, { expiresIn: '1d' });
   }
 }
