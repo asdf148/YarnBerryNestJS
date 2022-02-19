@@ -21,7 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
-import { CustomController } from 'src/global/customController';
+import { CustomController } from '../global/customController';
 import { FailResponseDTO } from '../dto/failResponse.dto';
 import { SuccessResponseDTO } from '../dto/successResponse.dto';
 import { multerDiskOptions } from '../global/multer.options';
@@ -55,11 +55,12 @@ export class ItemController extends CustomController {
     try {
       const result: Item[] = await this.itemService.getItems();
 
-      return this.createSuccessResponse<Item[]>(
-        res,
+      return this.returnSuccessResponseWithJSON<Item[]>(
         'GetItems Success',
         null,
         result,
+        res,
+        HttpStatus.OK,
       );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
@@ -90,11 +91,12 @@ export class ItemController extends CustomController {
     try {
       const result: Item = await this.itemService.getItem(itemId);
 
-      return this.createSuccessResponse<Item>(
-        res,
+      return this.returnSuccessResponseWithJSON<Item>(
         'GetItem Success',
         null,
         result,
+        res,
+        HttpStatus.OK,
       );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
@@ -132,10 +134,13 @@ export class ItemController extends CustomController {
         img,
       );
 
-      const response: SuccessResponseDTO<string> =
-        new SuccessResponseDTO<string>('CreateItem Success', result);
-
-      return res.status(HttpStatus.CREATED).json(response);
+      return this.returnSuccessResponseWithJSON<string>(
+        'CreateItem Success',
+        result,
+        null,
+        res,
+        HttpStatus.OK,
+      );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
         res,
@@ -172,11 +177,12 @@ export class ItemController extends CustomController {
         img,
       );
 
-      return this.createSuccessResponse<string>(
-        res,
+      return this.returnSuccessResponseWithJSON<string>(
         'ModifyItem Success',
         result,
         null,
+        res,
+        HttpStatus.OK,
       );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
@@ -208,11 +214,12 @@ export class ItemController extends CustomController {
     try {
       const result: string = await this.itemService.deleteItem(userId, itemId);
 
-      return this.createSuccessResponse<string>(
-        res,
+      return this.returnSuccessResponseWithJSON<string>(
         'DeleteItem Success',
         result,
         null,
+        res,
+        HttpStatus.OK,
       );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
@@ -221,20 +228,5 @@ export class ItemController extends CustomController {
         e.message,
       );
     }
-  }
-
-  private createSuccessResponse<T>(
-    res: Response,
-    status: string,
-    message?: string,
-    data?: T,
-  ) {
-    const response: SuccessResponseDTO<T> = new SuccessResponseDTO<T>(
-      status,
-      message,
-      data,
-    );
-
-    return res.status(HttpStatus.OK).json(response);
   }
 }

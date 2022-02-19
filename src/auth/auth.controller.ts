@@ -22,7 +22,7 @@ import { Auth } from './entity/auth.entity';
 import { FailResponseDTO } from '../dto/failResponse.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerDiskOptions } from '../global/multer.options';
-import { CustomController } from 'src/global/customController';
+import { CustomController } from '../global/customController';
 
 @Controller('auth')
 @ApiTags('계정 API')
@@ -47,11 +47,12 @@ export class AuthController extends CustomController {
     try {
       const savedAuth: Auth = await this.authService.signUp(createAuth, img);
 
-      return this.ReturnSuccessResponse<string>(
-        res,
+      return this.returnSuccessResponseWithJSON<string>(
         'SignUp Success',
         null,
         savedAuth.email,
+        res,
+        HttpStatus.CREATED,
       );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
@@ -73,11 +74,12 @@ export class AuthController extends CustomController {
     try {
       const token: string = await this.authService.login(loginDTO);
 
-      return this.ReturnSuccessResponse<string>(
-        res,
+      return this.returnSuccessResponseWithJSON<string>(
         'Login Success',
         null,
         token,
+        res,
+        HttpStatus.CREATED,
       );
     } catch (e) {
       return this.returnBadRequestResponseWithJSON(
@@ -86,20 +88,5 @@ export class AuthController extends CustomController {
         e.message,
       );
     }
-  }
-
-  ReturnSuccessResponse<T>(
-    res: Response,
-    state?: string,
-    message?: string,
-    data?: T,
-  ): Response<any, Record<string, any>> {
-    const successResponse: SuccessResponseDTO<T> = new SuccessResponseDTO<T>(
-      state ?? null,
-      message ?? null,
-      data ?? null,
-    );
-
-    return res.status(HttpStatus.CREATED).json(successResponse);
   }
 }
